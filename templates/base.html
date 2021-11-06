@@ -36,7 +36,99 @@
     <title>Boutique Ado {% block extra_title %}{% endblock %}</title>
   </head>
   <body>
-      <header class="container-fluid fixed-top"></header>
+      <header class="container-fluid fixed-top">
+          <div class="row">
+            <!-- We want them to stack vertically on all devices except large & extra- 
+            large screens So we'll use the col-12 and col-lg-4 for classes on each. We 
+            also want them all vertically centred with a bit of top & bottom padding on 
+            smaller screens so we'll add my-auto, py-1 & py-lg-0 classes on each.
+            Lastly, the logo should be centred by default so we add "text-center" class 
+            but left-aligned on large & extra-large screens so we add "text-lg-left" class. -->
+              <div class="col-12 col-lg-4 my-auto py-1 py-lg-0 text-center text-lg-left">
+                  <a href="{% url 'home' %}" class="nav-link main-logo-link">
+                      <h2 class="logo-font text-black my-0"><strong>Boutique</strong>Ado</h2>
+                  </a>
+              </div>
+              <div class="col-12 col-lg-4 my-auto py-1 py-lg-0">
+                  <form method="GET" action=""> 
+                      <div class="input-group w-100">
+                          <input class="form-control border border-black rounded-0" type="text" name="q" placeholder="Search our site">
+                          <div class="input-group-append">
+                              <button class="form-control btn btn-black border border-black rounded-0" type="submit">
+                                  <span class="icon">
+                                      <i class="fas fa-search"></i>
+                                  </span>
+                              </button>
+                          </div>
+                      </div>
+                  </form>
+              </div>
+              <div class="col-12 col-lg-4 my-auto py-1 py-lg-0">
+                  <!-- Bootstrap's list-inline & list-unstyled classes are used to align the 
+                    lists horizontally with no bullets & the first list item will be a drop-down. -->
+                  <ul class="list-inline list-unstyled text-center text-lg-right my-0">
+                    <li class="list-inline-item dropdown">
+                      <!-- The anchor element here will be the parent menu containing the 
+                      font awesome user icon & the text "My Account" in a paragraph. It 
+                      uses the data toggle attribute to link up to the bootstrap JavaScript
+                      & open the drop-down menu when clicked. The drop-down menu that opens 
+                      uses several Django template tags to determine what to display in the 
+                      menu. -->
+                        <a class="text-black nav-link" href="#" id="user-options" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <div class="text-center">
+                                <div><i class="fas fa-user fa-lg"></i></div>
+                                <p class="my-0">My Account</p>
+                            </div>
+                        </a>
+                        <div class="dropdown-menu border-0" aria-labelledby="user-options">
+                          <!-- If the user is authenticated, it will display a drop-down item 
+                      for their profile & a link to logout otherwise, it will display the 
+                      options to log in or register if they don't have an account. -->
+                            {% if request.user.is_authenticated %}
+                            <!--  if the user is authenticated & a superuser, we'll provide 
+                            them with the link to manage the store by adding, updating, or 
+                            deleting products (CRUD functionality). -->
+                                {% if request.user.is_superuser %}
+                                    <a href="" class="dropdown-item">Product Management</a> 
+                                {% endif %}
+                                    <a href="{% url 'profile' %}" class="dropdown-item">My Profile</a>
+                                    <!-- These Logout, Register/SignUp & Login URLs below are 
+                                    all from the allauth URLs we included in the project level 
+                                    urls.py -->
+                                    <a href="{% url 'account_logout' %}" class="dropdown-item">Logout</a>
+                            {% else %} <!-- user is not authenticated -->
+                                <a href="{% url 'account_signup' %}" class="dropdown-item">Register</a>
+                                <a href="{% url 'account_login' %}" class="dropdown-item">Login</a>
+                            {% endif %}
+                        </div>
+                    </li>
+                    <!-- This section is the shopping bag link. It consists of an anchor 
+                    element with a font awesome icon in it & some django template logic also. -->
+                    <li class="list-inline-item">
+                      <!-- Here in the anchor tag below, we're using the same template variable of 
+                      'grand total' to determine which classes to apply to the element. If there's 
+                      something in the bag i.e grand total exists, the font will be bold and 
+                      a different colour else it will just be normal black coloured text. -->
+                        <a class="{% if grand_total %}text-info font-weight-bold{% else %}text-black{% endif %} nav-link" href="">
+                            <div class="text-center">
+                                <div><i class="fas fa-shopping-bag fa-lg"></i></div>
+                                <p class="my-0">
+                                  <!-- Here, we're checking whether 'grand total' template 
+                                    variable exists. If it does, we'll format it to 2 decimal 
+                                    places & display it but If not, we'll just display 0. -->
+                                    {% if grand_total %}
+                                        ${{ grand_total|floatformat:2 }}
+                                    {% else %}
+                                        $0.00
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </a>
+                    </li>
+                  </ul>
+              </div>
+          </div>
+      </header>
 
       {% if messages %}
         <div class="message-container"></div>
