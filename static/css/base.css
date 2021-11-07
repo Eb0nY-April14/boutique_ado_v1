@@ -1,0 +1,98 @@
+html {
+    /*  This will allow our h100 classes in vertical centering to work.*/
+    height: 100%;
+}
+
+body {
+    /* This will add the background image to the body element using the size of cover & 
+    options of 'no-repeat center centre fixed'. This will ensure that the image stays put 
+    in the centre of the page. */
+    background: url('/media/homepage_background_cropped.jpg') no-repeat center center fixed;
+    background-size: cover;
+    /* We'll add a height calculation to the body element which will be 100vh minus 164 pixels 
+    which is the eventual height of our top header. */
+    height: calc(100vh - 164px);
+    color: #555;
+    font-family: 'Lato';
+}
+
+/* This icon class was taken from another CSS framework similar to bootstrap called Bulma
+& it will ensure that whenever we use font awesome icons, they will always stay perfectly 
+centred and have a consistent size unless we manually change it. */
+.icon {
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+    height: 1.5rem;
+    width: 1.5rem;
+}
+
+.logo-font {
+    text-transform: uppercase;
+}
+
+/* This class ensures that the logo only takes up as much space as the text requires & no more. */
+.main-logo-link {
+    width: fit-content;
+}
+
+/* The next 3 blocks of css rule will be used consistently for buttons so that they match the 
+theme of the shop now button on the homepage. */
+.shop-now-button {
+    background: black;
+    color: white;
+    min-width: 260px;
+}
+
+.btn-black {
+    background: black;
+    color: white;
+}
+
+.shop-now-button:hover,
+.shop-now-button:active,
+.shop-now-button:focus,
+.btn-black:hover,
+.btn-black:active,
+.btn-black:focus {
+    background: #222;
+    color: white;
+}
+
+/* We've added the text-black & border-black classes similar to bootstrap's colour helper 
+classes like 'text success', 'text info' etc. Bootstrap doesn't actually have a black class 
+as at the time of this recording so we are using the one created by the tutor & has been 
+marked as important because we want elements using these classes to obey them.
+These classes will allow us to have both primary and secondary call-to-action styling
+on all site buttons which gives our users a consistent user experience. */
+.text-black {
+    color: #000 !important;
+}
+
+.border-black {
+    border: 1px solid black !important;
+}
+
+/* -------------------------------- Media Queries */
+
+/* Slightly larger container on xl screens */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 80%;
+  }
+}
+
+/* fixed top navbar only on medium and up */
+@media (min-width: 992px) {
+    .fixed-top-desktop-only {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+        z-index: 1030;
+    }
+
+    .header-container {
+        padding-top: 164px;
+    }
+}

@@ -17,6 +17,8 @@
     {% block corecss %}
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato&display=swap">
+        <link rel="stylesheet" href="{% static 'css/base.css' %}">
     {% endblock %}
 
     {% block extra_css %}
@@ -25,6 +27,7 @@
     {% block corejs %}
         <!-- Optional JavaScript -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://kit.fontawesome.com/86e830b7c3.js" crossorigin="anonymous"></script>
         <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
@@ -37,7 +40,10 @@
   </head>
   <body>
       <header class="container-fluid fixed-top">
-          <div class="row">
+        <!-- We'll give 'id' to the main header div in base.html, a 'bg white' class to make 
+          its background white & add some padding. We also add some classes to ensure that it's 
+          only displayed on large screens since this section will look different on mobile. -->
+          <div id="topnav" class="row bg-white pt-lg-2 d-none d-lg-flex">
             <!-- We want them to stack vertically on all devices except large & extra- 
             large screens So we'll use the col-12 and col-lg-4 for classes on each. We 
             also want them all vertically centred with a bit of top & bottom padding on 
@@ -46,7 +52,7 @@
             but left-aligned on large & extra-large screens so we add "text-lg-left" class. -->
               <div class="col-12 col-lg-4 my-auto py-1 py-lg-0 text-center text-lg-left">
                   <a href="{% url 'home' %}" class="nav-link main-logo-link">
-                      <h2 class="logo-font text-black my-0"><strong>Boutique</strong>Ado</h2>
+                      <h2 class="logo-font text-black my-0"><strong>Boutique</strong> Ado</h2>
                   </a>
               </div>
               <div class="col-12 col-lg-4 my-auto py-1 py-lg-0">
@@ -91,7 +97,7 @@
                                 {% if request.user.is_superuser %}
                                     <a href="" class="dropdown-item">Product Management</a> 
                                 {% endif %}
-                                    <a href="{% url 'profile' %}" class="dropdown-item">My Profile</a>
+                                    <a href="" class="dropdown-item">My Profile</a>
                                     <!-- These Logout, Register/SignUp & Login URLs below are 
                                     all from the allauth URLs we included in the project level 
                                     urls.py -->
