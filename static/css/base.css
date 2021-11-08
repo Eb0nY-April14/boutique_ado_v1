@@ -73,6 +73,10 @@ on all site buttons which gives our users a consistent user experience. */
     border: 1px solid black !important;
 }
 
+.bg-black {
+    background: #000 !important;
+}
+
 /* -------------------------------- Media Queries */
 
 /* Slightly larger container on xl screens */

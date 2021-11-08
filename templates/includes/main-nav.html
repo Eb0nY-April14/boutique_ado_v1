@@ -1,0 +1,61 @@
+<!--  THE CONTENT OF THIS PAGE WILL BE INCLUDED IN THE BASE TEMPLATE. -->
+
+<!-- We'll start with the boilerplate from bootstrap which is a div with 'collapse' & 
+'navbar-collapse' classes. We'll give it an id of 'main-nav' to match it up with the 
+toggle button we put into the base template. -->
+<div class="collapse navbar-collapse" id="main-nav">
+    <!--  This unordered list uses the required class from bootstrap & others to make 
+    it auto width, auto left & right margins. The shell of all this code comes from the 
+    bootstrap documentation so we use that as the base & then customize it. -->
+    <ul class="navbar-nav w-auto mx-auto">
+        <li class="nav-item dropdown">
+            <!-- This is a link that says 'All Products' which triggers a drop-down of 
+            4 other href links below it. This menu will allow the user to 
+            either see all products at once or sort them by price, rating or category. -->
+            <a class="logo-font font-weight-bold nav-link text-black mr-5" href="#" id="all-products-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                All Products
+            </a>
+            <div class="dropdown-menu border-0" aria-labelledby="all-products-link">
+                <a href="" class="dropdown-item">By Price</a>
+                <a href="" class="dropdown-item">By Rating</a>
+                <a href="" class="dropdown-item">By Category</a>
+                <a href="" class="dropdown-item">All Products</a>
+            </div>
+        </li>
+
+        <li class="nav-item dropdown">
+            <a class="logo-font font-weight-bold nav-link text-black mr-5" href="#" id="clothing-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Clothing
+            </a>
+            <div class="dropdown-menu border-0" aria-labelledby="clothing-link">
+                <a href="" class="dropdown-item">Activewear &amp; Essentials</a>
+                <a href="" class="dropdown-item">Jeans</a>
+                <a href="" class="dropdown-item">Shirts</a>
+                <a href="" class="dropdown-item">All Clothing</a>
+            </div>
+        </li>
+
+        <li class="nav-item dropdown">
+            <a class="logo-font font-weight-bold nav-link text-black mr-5" href="#" id="homeware-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Homeware
+            </a>
+            <div class="dropdown-menu border-0" aria-labelledby="homeware-link">
+                <a href="" class="dropdown-item">Bed &amp; Bath</a>
+                <a href="" class="dropdown-item">Kitchen &amp; Dining</a>
+                <a href="" class="dropdown-item">All Homeware</a>
+            </div>
+        </li>
+
+        <li class="nav-item dropdown">
+            <a class="logo-font font-weight-bold nav-link text-black" href="#" id="specials-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Special Offers
+            </a>
+            <div class="dropdown-menu border-0" aria-labelledby="specials-link">
+                <a href="" class="dropdown-item">New Arrivals</a>
+                <a href="" class="dropdown-item">Deals</a>
+                <a href="" class="dropdown-item">Clearance</a>
+                <a href="" class="dropdown-item">All Specials</a>
+            </div>
+        </li>
+    </ul>
+</div>
