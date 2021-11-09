@@ -77,6 +77,17 @@ on all site buttons which gives our users a consistent user experience. */
     background: #000 !important;
 }
 
+.overlay {
+	height: 100%;
+	width: 100%;
+	top: 0;
+	left: 0;
+	position: fixed; /*Fixed at the top left of the screen.*/
+	background: white;
+	z-index: -1; /* This ensures that the image sits behind all the content. */
+}
+
+
 /* -------------------------------- Media Queries */
 
 /* Slightly larger container on xl screens */
