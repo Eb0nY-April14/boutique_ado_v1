@@ -42,16 +42,15 @@ categories & the other for the products themselves. -->
                                 <!------------------------------------------------------------------------->
                                 <!-- THE CARD IS DIVIDED INTO A TOP WHICH CONTAINS OUR PRODUCT IMAGE.    -->
                                 {% if product.image %}
-                                <!-- The image portion of the card uses an if statement that 
-                                renders the product image using the image fields URL attribute 
-                                if an image exists. -->
-                                <a href="">
+                                <!-- The image portion of the card uses an if statement that renders the product image using the image fields URL attribute if an image exists.
+                                In the anchor tag on the next line, the image will link to the product details & will allow a user to add a product to the shopping bag even regardless of no image existing. -->
+                                <a href="{% url 'product_detail' product.id %}">
                                     <img class="card-img-top img-fluid" src="{{ product.image.url }}" alt="{{ product.name }}">
                                 </a>
                                 <!-- if an image does not exist, the default image (i.e picture 
                                 of no image) from the media folder will be displayed. -->
                                 {% else %}
-                                <a href="">
+                                <a href="{% url 'product_detail' product.id %}">
                                     <img class="card-img-top img-fluid" src="{{ MEDIA_URL }}noimage.png" alt="{{ product.name }}">
                                 </a>
                                 {% endif %}
@@ -114,8 +113,8 @@ categories & the other for the products themselves. -->
                             </div>
                         {% endif %}
 
-                        <!-- We've added a bit of bottom margin i.e 'mb 5' after each one of these 
-                            horizontal rules. -->
+                        <!-- We've added a bit of bottom margin i.e 'mb 5' after each one of 
+                            these horizontal rules. -->
                         <!-- VISIBLE ONLY ON LARGE SCREEN SIZES -->
                         <!-- We'll do same on large screens but there will be 3 products in 
                         each row so we'll use 'divisible by 3' to hide the hr on all screen 
