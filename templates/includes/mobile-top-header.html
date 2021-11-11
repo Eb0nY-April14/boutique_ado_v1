@@ -16,7 +16,9 @@
     ensure that the top portion of the navbar which is separate from the main navigation
     displays cleanly on mobile. -->
     <div class="dropdown-menu border-0 w-100 p-3 rounded-0 my-0" aria-labelledby="mobile-search">
-        <form class="form" method="GET" action="">
+        <!-- Setting the 'action' attribute on the search form means that when we submit a search 
+        query, it'll end up in the url as a get parameter. -->
+        <form class="form" method="GET" action="{% url 'products' %}">
             <div class="input-group w-100">
                 <input class="form-control border border-black rounded-0" type="text" name="q" placeholder="Search our site">
                 <div class="input-group-append">
