@@ -15,10 +15,17 @@ toggle button we put into the base template. -->
             <a class="logo-font font-weight-bold nav-link text-black mr-5" href="#" id="all-products-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 All Products
             </a>
+            <!-- Here in the 'All Products' menu, we'll add some links to the products view
+            with 2 new get parameters namely sort and direction. When using this menu, the 
+            default will be to sort in ascending order but we'll add more functionality on 
+            the products page to handle other sorting methods. The fields infront of the 
+            equals to are fields on the product model in models.py which means we could add
+            additional functionality here if we wanted such as sorting by SKU or whether or 
+            not the product has an image. -->
             <div class="dropdown-menu border-0" aria-labelledby="all-products-link">
-                <a href="" class="dropdown-item">By Price</a>
-                <a href="" class="dropdown-item">By Rating</a>
-                <a href="" class="dropdown-item">By Category</a>
+                <a href="{% url 'products' %}?sort=price&direction+asc" class="dropdown-item">By Price</a>
+                <a href="{% url 'products' %}?sort=rating&direction+desc" class="dropdown-item">By Rating</a>
+                <a href="{% url 'products' %}?sort=category&direction+asc" class="dropdown-item">By Category</a>
                 <a href="{% url 'products' %}" class="dropdown-item">All Products</a>
             </div>
         </li>

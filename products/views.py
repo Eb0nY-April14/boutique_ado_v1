@@ -17,10 +17,52 @@ def all_products(request):
     query = None
     # We'll start by making 'category' equals to none at the top of the view.
     categories = None
+    sort = None
+    direction = None
 
     # We can access those url parameters in the 'all_products' view
     # by checking whether 'request.get' exists.
     if request.GET:
+        if 'sort' in request.GET:
+            # The reason for copying the sort parameter into a new variable
+            # called sortkey is because we want to preserve the original
+            # field we want it to sort on name. Now we have the actual field
+            # we're going to sort on, lower_name in the sort key variable.
+            # If we had just renamed sort itself to lower_name, we would have
+            # lost the original field name.
+            # Here, we'll get the 'sort' which is equal to None at this point
+            # & set it to sortkey variable as done on next line
+            sortkey = request.GET['sort']
+            # We'll set the 'sort' up above that was equal to None
+            # earlier to that sort key.
+            sort = sortkey
+            # To allow case-insensitive sorting on the name field,
+            # we need to 1st annotate all the products with a new field.
+            # Annotation allows us to add a temporary field on a model so
+            # in this case, what we want to do is check whether the sort
+            # key is equal to name.
+            if sortkey == 'name':
+                # if the condition above is true, we'll set it to lower_name
+                # i.e rename sortkey to lower_name which is the field we're
+                # about to create with the annotation.
+                sortkey = 'lower_name'
+                # The code on the next line will do the annotation. We'll
+                # annotate the current list of products with a new field.
+                products = products.annotate(lower_name=Lower('name'))
+
+            if 'direction' in request.GET:
+                direction = request.GET['direction']
+                # All we'll do here is check whether the direction is
+                # descending. If so, we'll add a minus in front of the
+                # sort key using string formatting, which will reverse
+                # the order.
+                if direction == 'desc':
+                    sortkey = f'-{sortkey}'
+
+            # Finally, all we need to do to actually sort the products is 
+            # use the 'order by' model method.
+            products = products.order_by(sortkey)
+
         # Then we'll check whether category exists in request.get & split it
         # into a list at the commas if it does exist.
         if 'category' in request.GET:
@@ -70,20 +112,30 @@ def all_products(request):
             # actually filter the products as done on the next line
             products = products.filter(queries)
 
-    # We'll add 'products' to the context so that it'll
-    # be available in the template.
-    context = {
-        'products': products,
-        'search_term': query,  # add the query to the context
-        # We'll return that list of 'category objects' called
-        # 'current_categories' to the context so we can use it
-        # in the template later on
-        'current_categories': categories,
-    }
+        # Lastly, we need to return the current sorting methodology to 
+        # the template. There are plenty of ways to do this but since
+        # we have both the sort & direction variables stored, it's easy 
+        # to do that with string formatting. We'll call this variable 
+        # 'current_sorting' & then return it to the template. NOTE that
+        # the value of this variable will be the string none_none if 
+        # there's no sorting.
+        current_sorting = f'{sort}_{direction}'
 
-    # It'll also need a context since we need to send some
-    # things back to the template.
-    return render(request, 'products/products.html', context)
+        # We'll add 'products' to the context so that it'll
+        # be available in the template.
+        context = {
+            'products': products,
+            'search_term': query,  # add the query to the context
+            # We'll return that list of 'category objects' called
+            # 'current_categories' to the context so we can use it
+            # in the template later on
+            'current_categories': categories,
+            'current_sorting': current_sorting,
+        }
+
+        # It'll also need a context since we need to send some
+        # things back to the template.
+        return render(request, 'products/products.html', context)
 
 
 def product_detail(request, product_id):
