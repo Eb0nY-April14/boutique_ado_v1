@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.contrib import messages
 from django.db.models import Q  # used to generate a search query.
-from .models import Product
+from .models import Product, Category
 
 # Create your views here.
 
@@ -15,10 +15,28 @@ def all_products(request):
     # view to ensure we don't get an error when loading the products page
     # without a search term.
     query = None
+    # We'll start by making 'category' equals to none at the top of the view.
+    categories = None
 
     # We can access those url parameters in the 'all_products' view
     # by checking whether 'request.get' exists.
     if request.GET:
+        # Then we'll check whether category exists in request.get & split it
+        # into a list at the commas if it does exist.
+        if 'category' in request.GET:
+            categories = request.GET['category'].split(',')
+            # We'll then use that list created above to filter the current
+            # query set of all products down to only products whose category
+            # name is in the list rom the URL.
+            products = products.filter(category__name__in=categories)
+
+            # And then we'll filter all categories down to the ones whose name
+            # is in the list from the URL. Doing this will convert the list of
+            # strings of category names passed through the URL into a list of
+            # actual category objects so that we can access all their fields
+            # in the template.
+            categories = Category.objects.filter(name__in=categories)
+
         # We'll check if 'q' is in request.get where 'q' is the name
         # we gave the text input in the form on 'mobile top header.html'
         # & base.html pages
@@ -48,7 +66,6 @@ def all_products(request):
             # is what generates the OR statement & the 'i' in front of contains
             # makes the queries case insensitive.
             queries = Q(name__icontains=query) | Q(description__icontains=query)
-
             # We'll then pass the 'queries' to the filter method in order to
             # actually filter the products as done on the next line
             products = products.filter(queries)
@@ -58,6 +75,10 @@ def all_products(request):
     context = {
         'products': products,
         'search_term': query,  # add the query to the context
+        # We'll return that list of 'category objects' called
+        # 'current_categories' to the context so we can use it
+        # in the template later on
+        'current_categories': categories,
     }
 
     # It'll also need a context since we need to send some
