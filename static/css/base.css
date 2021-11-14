@@ -92,6 +92,22 @@ a.category-badge > span.badge:hover {
     color: #fff !important;
 }
 
+/* 2 CSS classes below are for styling back to top button.
+This will set a static width, height & position in the bottom 
+right of the screen. */
+.btt-button {
+    height: 42px;
+    width: 42px;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+}
+
+/* This makes the cursor into a pointer. */
+.btt-link {
+    cursor: pointer;
+}
+
 
 /* -------------------------------- Media Queries */
 
