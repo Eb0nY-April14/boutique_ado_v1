@@ -6,69 +6,77 @@
         <div class="row">
             <div class="col"></div>
         </div>
-    </div>   
+    </div>
 {% endblock %}
 
-<!-- This is the core of this page & will be a 'container fluid' 
-with 2 rows, one to contain the page title and any currently selected 
-categories & the other for the products themselves. -->
 {% block content %}
-    <!-- The full-page overlay is needed in order to cover up the 
-    body's background image & give this page a white background. -->
     <div class="overlay"></div>
     <div class="container-fluid">
         <div class="row">
             <div class="col text-center mt-3">
                 <h2 class="logo-font">Products</h2>
-                <!-- This below means a 50% width horizontal rule. -->
+                {% for c in current_categories %}
+                    <a class="category-badge text-decoration-none" href="{% url 'products' %}?category={{ c.name }}">
+                        <span class="p-2 mt-2 badge badge-white text-black rounded-0 border border-dark">{{ c.friendly_name }}</span>
+                    </a>
+                {% endfor %}
                 <hr class="w-50 mb-1">
-            </div>   
+            </div>
         </div>
         <div class="row">
-            <!-- This 'product container' will be a single column offset by 
-            1 & itself will be divided into two rows. -->
             <div class="product-container col-10 offset-1">
-                <div class="row mt-1 mb-2"></div> <!-- 1st row -->
-                <!-- Inside the 2nd row below, we'll create a simple Django for loop to 
-                iterate through the product variable. For each product, we'll generate a 
-                column inside which will be a bootstrap card. -->
+                <div class="row mt-1 mb-2">
+                    <div class="col-12 col-md-6 my-auto order-md-last d-flex justify-content-center justify-content-md-end">
+                        <div class="sort-select-wrapper w-50">
+                            <select id="sort-selector" class="custom-select custom-select-sm rounded-0 border border-{% if current_sorting != 'None_None' %}info{% else %}black{% endif %}">
+                                <option value="reset" {% if current_sorting == 'None_None' %}selected{% endif %}>Sort by...</option>
+                                <option value="price_asc" {% if current_sorting == 'price_asc' %}selected{% endif %}>Price (low to high)</option>
+                                <option value="price_desc" {% if current_sorting == 'price_desc' %}selected{% endif %}>Price (high to low)</option>
+                                <option value="rating_asc" {% if current_sorting == 'rating_asc' %}selected{% endif %}>Rating (low to high)</option>
+                                <option value="rating_desc" {% if current_sorting == 'rating_desc' %}selected{% endif %}>Rating (high to low)</option>
+                                <option value="name_asc" {% if current_sorting == 'name_asc' %}selected{% endif %}>Name (A-Z)</option>
+                                <option value="name_desc" {% if current_sorting == 'name_desc' %}selected{% endif %}>Name (Z-A)</option>
+                                <option value="category_asc" {% if current_sorting == 'category_asc' %}selected{% endif %}>Category (A-Z)</option>
+                                <option value="category_desc" {% if current_sorting == 'category_desc' %}selected{% endif %}>Category (Z-A)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 order-md-first">
+                        <p class="text-muted mt-3 text-center text-md-left">
+                            {% if search_term or current_categories or current_sorting != 'None_None' %}
+                                <span class="small"><a href="{% url 'products' %}">Products Home</a> | </span>
+                            {% endif %}
+                            {{ products|length }} Products{% if search_term %} found for <strong>"{{ search_term }}"</strong>{% endif %}
+                        </p>
+                    </div>
+                </div>
                 <div class="row">
                     {% for product in products %}
-                    <!-- Products will stack on mobile, be side-by-side on small & medium 
-                    screens, split into 3 columns on large & 4 columns on extra-large. -->
-                    <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
-                            <!-- Card layout code from bootstrap. -->
+                        <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
                             <div class="card h-100 border-0">
-                                <!------------------------------------------------------------------------->
-                                <!-- THE CARD IS DIVIDED INTO A TOP WHICH CONTAINS OUR PRODUCT IMAGE.    -->
                                 {% if product.image %}
-                                <!-- The image portion of the card uses an if statement that renders the product image using the image fields URL attribute if an image exists.
-                                In the anchor tag on the next line, the image will link to the product details & will allow a user to add a product to the shopping bag even regardless of no image existing. -->
                                 <a href="{% url 'product_detail' product.id %}">
                                     <img class="card-img-top img-fluid" src="{{ product.image.url }}" alt="{{ product.name }}">
                                 </a>
-                                <!-- if an image does not exist, the default image (i.e picture 
-                                of no image) from the media folder will be displayed. -->
                                 {% else %}
                                 <a href="{% url 'product_detail' product.id %}">
                                     <img class="card-img-top img-fluid" src="{{ MEDIA_URL }}noimage.png" alt="{{ product.name }}">
                                 </a>
                                 {% endif %}
-                                <!-------------------------- END OF TOP SECTION --------------------------->
-
-                                <!------------------------------------------------------------------------->
-                                <!--        THE 2ND IS A BODY CONTAINING THE PRODUCT NAME.                 -->
                                 <div class="card-body pb-0">
                                     <p class="mb-0">{{ product.name }}</p>
                                 </div>
-                                <!----------------------------- END OF BODY SECTION ------------------------->
-
-                                <!--------------------------------------------------------------------------->
-                                <!--   THE 3RD IS A FOOTER CONTAINING THE PRICE & RATING.                  -->
                                 <div class="card-footer bg-white pt-0 border-0 text-left">
                                     <div class="row">
                                         <div class="col">
                                             <p class="lead mb-0 text-left font-weight-bold">${{ product.price }}</p>
+                                            {% if product.category %}
+                                            <p class="small mt-1 mb-0">
+                                                <a class="text-muted" href="{% url 'products' %}?category={{ product.category.name }}">
+                                                    <i class="fas fa-tag mr-1"></i>{{ product.category.friendly_name }}
+                                                </a>
+                                            </p>
+                                            {% endif %}
                                             {% if product.rating %}
                                                 <small class="text-muted"><i class="fas fa-star mr-1"></i>{{ product.rating }} / 5</small>
                                             {% else %}
@@ -77,57 +85,23 @@ categories & the other for the products themselves. -->
                                         </div>
                                     </div>
                                 </div>
-                                <!------------------------- END OF FOOTER SECTION ---------------------------->
                             </div>
                         </div>
-
-                        <!-- VISIBLE ONLY ON EXTRA-SMALL SCREEN SIZES -->
-                        <!-- Since our products will be stacked on top of each other on mobile 
-                        screens, then we need to render a full-width horizontal rule after 
-                        every single product if we want it. To fix the issue of having all 
-                        products display one on each row, we'll use the 'display small none' 
-                        class which will prevent this column from rendering on everything 
-                        except extra small screens. -->
-                        <!-- We'll also wrap the extra small horizontal rule in a similar 'if 
-                        statement' just to be explicit about what we're doing though this isn't 
-                        necessary since the counter will always be divisible by 1 -->
                         {% if forloop.counter|divisibleby:1 %}
                             <div class="col-12 d-sm-none mb-5">
                                 <hr>
                             </div>
-                        {% endif %}
-
-                        <!-- VISIBLE ONLY ON SMALL & MEDIOUM SCREEN SIZES -->
-                        <!-- This column below will have a class of 'display none' by default
-                        to keep it hidden on extra small screens & 'display block' on small 
-                        screens and larger. This column will be rendered on small and medium 
-                        screens only when the iteration number of the loop is divisible by 2.
-                        This will be accomplished by using a couple of built-in django template 
-                        tags in an if statement. -->
+                        {% endif %}                        
                         {% if forloop.counter|divisibleby:2 %}
-                            <!--  The horizontal rule will be visible only on small and medium 
-                            screens. So we'll use 'display small block & display medium block'
-                            & 'display large none' to hide it on large screens & up.-->
                             <div class="col-12 d-none d-sm-block d-md-block d-lg-none mb-5">
                                 <hr>
                             </div>
                         {% endif %}
-
-                        <!-- We've added a bit of bottom margin i.e 'mb 5' after each one of 
-                            these horizontal rules. -->
-                        <!-- VISIBLE ONLY ON LARGE SCREEN SIZES -->
-                        <!-- We'll do same on large screens but there will be 3 products in 
-                        each row so we'll use 'divisible by 3' to hide the hr on all screen 
-                        sizes except large. -->
                         {% if forloop.counter|divisibleby:3 %}
                             <div class="col-12 d-none d-lg-block d-xl-none mb-5">
                                 <hr>
                             </div>
                         {% endif %}
-
-                        <!-- VISIBLE ONLY ON EXTRA-LARGE SCREEN SIZES -->
-                        <!-- This will have 4 products in each row so we want to render this
-                        extra one every 4 columns so we'll use 'divisible by 4'. -->
                         {% if forloop.counter|divisibleby:4 %}
                             <div class="col-12 d-none d-xl-block mb-5">
                                 <hr>
@@ -136,7 +110,6 @@ categories & the other for the products themselves. -->
                     {% endfor %}
                 </div>
             </div>
-            
         </div>
-    </div>   
+    </div>
 {% endblock %}
