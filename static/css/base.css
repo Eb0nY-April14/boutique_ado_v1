@@ -49,6 +49,12 @@ theme of the shop now button on the homepage. */
     color: white;
 }
 
+.btn-outline-black {
+    background: white;
+    color: black !important; /* use important to override link colors for <a> elements */
+    border: 1px solid black;
+}
+
 .shop-now-button:hover,
 .shop-now-button:active,
 .shop-now-button:focus,
@@ -56,7 +62,7 @@ theme of the shop now button on the homepage. */
 .btn-black:active,
 .btn-black:focus {
     background: #222;
-    color: white;
+    color: white !important;
 }
 
 /* We've added the text-black & border-black classes similar to bootstrap's colour helper 
