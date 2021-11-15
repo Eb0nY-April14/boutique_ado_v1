@@ -75,6 +75,15 @@ TEMPLATES = [
                 'django.template.context_processors.request',  # required by allauth
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # We'll add the context processor created in contexts.py file
+                # earlier to the list of context processors in the templates
+                # variable in settings.py to make it available to the entire
+                # application. What this means is that anytime we need to
+                # access the bag contents in any template across the entire
+                # site, they'll be available to us without having to return
+                # them from a whole bunch of different views across
+                # different apps.
+                'bag.contexts.bag_contents',
             ],
         },
     },
@@ -156,7 +165,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 # This will tell Django where all of our static files are located.
-# Since they're located in the project level static folder, all we 
+# Since they're located in the project level static folder, all we
 # need to do is shown on the next line below
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
@@ -168,3 +177,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# These 2 new variables added below will be used to calculate delivery costs
+FREE_DELIVERY_THRESHOLD = 50
+STANDARD_DELIVERY_PERCENTAGE = 10
