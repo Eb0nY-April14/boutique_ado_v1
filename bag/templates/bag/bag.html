@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_header %}
+    <div class="container header-container">
+        <div class="row">
+            <div class="col"></div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block content %}
+    <!-- The overlay class will cover-up the background image. -->
+    <div class="overlay"></div>
+    <div class="container mb-2">
+        <div class="row">
+            <div class="col">
+                <hr>
+                <!-- The 1st row & column contains the shopping bag heading 
+                between 2 horizontal rules. -->
+                <h2 class="logo-font mb-4">Shopping Bag</h2>
+                <hr>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <!-- The 2nd row & column will contain a table to show the bag contents. -->
+                <!-- We added an if statement because we only want to render the table if 
+                there's something in the shopping bag. -->
+                {% if bag_items %}
+                <!-- We'll render this table on next line if there are items in the bag.  -->
+                    <div class="table-responsive rounded"></div>
+                {% else %}
+                <!-- This will render a paragraph that says "your bag is empty" if no items in the bag. -->
+                    <p class="lead mb-5">Your bag is empty.</p>
+                    <!-- The anchor tag below contains href that gives users a link back to the products 
+                        page after rendering the "your bag is empty" message to the user. -->
+                    <a href="{% url 'products' %}" class="btn btn-outline-black rounded-0 btn-lg">
+                        <span class="icon">
+                            <i class="fas fa-chevron-left"></i>
+                        </span>
+                        <span class="text-uppercase">Keep Shopping</span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
