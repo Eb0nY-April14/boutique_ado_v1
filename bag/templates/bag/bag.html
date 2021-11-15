@@ -29,8 +29,12 @@
                 <!-- We added an if statement because we only want to render the table if 
                 there's something in the shopping bag. -->
                 {% if bag_items %}
-                <!-- We'll render this table on next line if there are items in the bag.  -->
-                    <div class="table-responsive rounded"></div>
+                <!-- We'll render this table on next line if there are items in the bag
+                i.e render out the bag_item so we can see what we're working with. -->
+                    <div class="table-responsive rounded">
+                        <!-- We'll render the bag items here to test that it works. -->
+                        {{ bag_items }}
+                    </div>
                 {% else %}
                 <!-- This will render a paragraph that says "your bag is empty" if no items in the bag. -->
                     <p class="lead mb-5">Your bag is empty.</p>

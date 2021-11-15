@@ -33,7 +33,8 @@ def add_to_bag(request, item_id):
     # requests session & tries to get this variable if it already exists
     # & if it doesn't, initializes it to an empty dictionary. It checks
     # if there's a bag variable in the session & creates one if not.
-    # We'll get the  bag variable if it exists or create it if it doesn't
+    # We'll get the bag session variable if it exists or create it if 
+    # it doesn't.
     bag = request.session.get('bag', {})
 
     # This will stuff the product into the dictionary we just created along
@@ -47,7 +48,7 @@ def add_to_bag(request, item_id):
     else:
         bag[item_id] = quantity  # This adds the item to the bag for the 1st time
 
-    # Here, we'll overwrite the variable in the session with the updated version.
+    # Here, we'll overwrite the session variable called bag with the updated version.
     request.session['bag'] = bag
-    print(request.session['bag'])
+    # print(request.session['bag'])
     return redirect(redirect_url)
