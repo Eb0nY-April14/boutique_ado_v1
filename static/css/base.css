@@ -110,7 +110,9 @@ right of the screen. */
 }
 
 /* This makes the cursor into a pointer. */
-.btt-link {
+.btt-link,
+.update-link,
+.remove-item {
     cursor: pointer;
 }
 
