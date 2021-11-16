@@ -1,5 +1,7 @@
+<!-- THIS IS THE SHOPPING BAG TEMPLATE. -->
 {% extends "base.html" %}
 {% load static %}
+{% load bag_tools %}
 
 {% block page_header %}
     <div class="container header-container">
@@ -73,7 +75,7 @@
                                     </td>
                                     <td class="py-3 w-25">
                                         <!-- <p class="my-0">{{ item.quantity }}</p> -->
-                                        <form class="form update-form" method="POST" action="">
+                                        <form class="form update-form" method="POST" action="{% url 'adjust_bag' item.item_id %}">
                                             {% csrf_token %}
                                             <div class="form-group">
                                                 <div class="input-group">
@@ -118,10 +120,10 @@
                                         ific item the customer wants to remove if there are mult-
                                         iple sizes of this item in the bag. -->
                                         <a class="update-link text-info"><small>Update</small></a>
-                                        <a class="remove-item text-danger float-right" id="remove_{{ item.item_id }}" data-size="{{ item.size }}"><small>Remove</small></a>
+                                        <a class="remove-item text-danger float-right" id="remove_{{ item.item_id }}" data-product_size="{{ item.size }}"><small>Remove</small></a>
                                     </td>
                                     <td class="py-3">
-                                        <p class="my-0">${{ item.product.price }}</p>
+                                        <p class="my-0">${{ item.product.price | calc_subtotal:item.quantity }}</p>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -212,15 +214,15 @@ elements on the shopping cart when it's clicked. -->
         to be very explicit about what we're splitting. */ 
         var itemId = $(this).attr('id').split('remove_')[1];
         /* To get the size, we'll use the 'data' method to pull it from the data size attribute */ 
-        var size = $(this).data('size');
+        var size = $(this).data('product_size');
         /*  We need URL which will be bag/remove/the itemId. This will be a template literal
         & we'll make this URL later. */ 
-        var url = `/bag/remove/${itemId}`;
+        var url = `/bag/remove/${itemId}/`;
         /* Lastly, we need data which is the object we'll use to send this data to the server
         which will contain a special key all in lowercase with no spaces called 'CSRF middleware 
         token' & our 'var csrfToken' above as its value & it'll contain the 'size' key & our 
         'var size' above as its value too. */ 
-        var data = {'csrfmiddlewaretoken': csrfToken, 'size': size};
+        var data = {'csrfmiddlewaretoken': csrfToken, 'product_size': size};
 
         /* NOTE: The CSRF middleware token key must match the field Django is expecting
         to see in request.post when we post it to the server & we'll achieve that by 

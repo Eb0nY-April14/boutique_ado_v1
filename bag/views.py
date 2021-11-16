@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse, HttpResponse
 
 # Create your views here.
 
@@ -71,3 +71,80 @@ def add_to_bag(request, item_id):
     request.session['bag'] = bag
     # print(request.session['bag'])
     return redirect(redirect_url)
+
+
+# This view is similar to the 'add to bag' view above it & its purpose is to 
+# update the quantity of an item in the shopping bag already.
+def adjust_bag(request, item_id):
+    """Adjust the quantity of the specified product to the specified amount"""
+
+    quantity = int(request.POST.get('quantity'))
+    size = None
+    if 'product_size' in request.POST:
+        size = request.POST['product_size']
+    bag = request.session.get('bag', {})
+
+    # This comes from a form on the 'shopping bag' page which will
+    # contain the new quantity the user wants in the bag. If the item 
+    # has a size, we'll need to drill into the 'items by size' dictionary, 
+    # find that specific size & either set its quantity to the updated one 
+    # or (i.e else part below) remove it if the quantity submitted is zero. 
+    if size:
+        # If quantity is greater than 0, we'll set the items quantity
+        # rightly or else (else part below) remove the item.
+        if quantity > 0:
+            bag[item_id]['items_by_size'][size] = quantity
+        else:
+            del bag[item_id]['items_by_size'][size]
+            # If that's the only size they had in the bag i.e if the 'items by size' dictionary 
+            # is now empty which will evaluate to false, we'll remove the entire 'item id' so 
+            # that there's no empty 'items by size' dictionary hanging around.
+            if not bag[item_id]['items_by_size']:
+                bag.pop(item_id)
+    # The else part here below takes care of items with no size            
+    else:
+        if quantity > 0:
+            bag[item_id] = quantity
+        else:
+            bag.pop(item_id)
+
+    request.session['bag'] = bag
+    # Lastly, we'll redirect back to the view bag URL using the reverse function for that.
+    return redirect(reverse('view_bag'))
+
+
+# The 'remove from bag' view below will allow users to remove items directly without setting 
+# the quantity to 0 manually & is similar to both views above.
+def remove_from_bag(request, item_id):
+    """Remove the item from the shopping bag"""
+
+    # We wrapped this entire block of code in a try block to catch any exceptions that 
+    # happen in order to return a 500 server error.
+    try:
+        size = None
+        if 'product_size' in request.POST:
+            size = request.POST['product_size']
+        bag = request.session.get('bag', {})
+
+        # If the user is removing a product with sizes, we want to remove only the specific 
+        # size they requested so if size is in request.post, we'll delete that size key in 
+        # the items by size dictionary.
+        if size:
+            del bag[item_id]['items_by_size'][size]
+            # If that's the only size they had in the bag i.e if the 'items by size' dictionary 
+            # is now empty which will evaluate to false, we'll remove the entire 'item id' so 
+            # that there's no empty 'items by size' dictionary hanging around.
+            if not bag[item_id]['items_by_size']:
+                bag.pop(item_id)
+        # The else part here below takes care of items with no size  
+        else:
+            bag.pop(item_id)
+
+        request.session['bag'] = bag
+        # Since this view will be posted to from a JScript function, instead of returning 
+        # a redirect, we want to return an actual 200 HTTP response to show that the item 
+        # was successfully removed.
+        return HttpResponse(status=200)
+
+    except Exception as e:
+        return HttpResponse(status=500)
