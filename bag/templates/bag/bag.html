@@ -29,6 +29,10 @@
                 <!-- We added an if statement because we only want to render the table if 
                 there's something in the shopping bag. -->
                 {% if bag_items %}
+                    <!-- {{ bag_items }}
+                    <br>
+                    <br>
+                    {{ request.session.bag }} -->
                 <!-- We'll render this table on next line if there are items in the bag
                 i.e render out the bag_item so we can see what we're working with. -->
                     <div class="table-responsive rounded">

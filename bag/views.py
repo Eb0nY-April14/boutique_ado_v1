@@ -17,6 +17,10 @@ def add_to_bag(request, item_id):
     # The code below this comment will get the redirect URL from the form
     # so as to know where to redirect once the process here is finished.
     redirect_url = request.POST.get('redirect_url')
+    size = None
+    # This will update all products that should have sizes in all our views
+    if 'product_size' in request.POST:
+        size = request.POST['product_size']
     # In modern versions of HTTP, every request-response cycle between
     # the server & the client which in our case is between the django
     # view on the server-side & our form making the request on the
@@ -37,16 +41,31 @@ def add_to_bag(request, item_id):
     # it doesn't.
     bag = request.session.get('bag', {})
 
-    # This will stuff the product into the dictionary we just created along
-    # with the quantity & will do so by creating a key of the items id & set
-    # it equal to the quantity. If the item is already in the bag i.e there's
-    # already a key in the bag dictionary matching this product id, then we'll
-    # increment its quantity rightly
-    if item_id in list(bag.keys()):
-        # This updates the item quantity if it already exists
-        bag[item_id] += quantity
+    if size:
+        # This checks if the item is already in the bag & if it is, then we need 
+        # to check if another item of the same id & same size already exists & if 
+        # so, increment the quantity for that size or else set it equal to the quantity.
+        if item_id in list(bag.keys()):
+            if size in bag[item_id]['items_by_size'].keys():
+                bag[item_id]['items_by_size'][size] += quantity
+            else:
+                bag[item_id]['items_by_size'][size] = quantity
+        else:
+            bag[item_id] = {'items_by_size': {size: quantity}}
+    # This else part below takes care of products with no size
     else:
-        bag[item_id] = quantity  # This adds the item to the bag for the 1st time
+        # This will stuff the product into the dictionary we just created along
+        # with the quantity & will do so by creating a key of the items id & set
+        # it equal to the quantity. If the item is already in the bag i.e there's
+        # already a key in the bag dictionary matching this product id, then we'll
+        # increment its quantity rightly
+        if item_id in list(bag.keys()):
+            # This updates the item quantity if it already exists
+            bag[item_id] += quantity
+            # The else part below adds the item to the bag for the 1st time as a 
+            # dictionary with a key of items_by_size.
+        else:
+            bag[item_id] = quantity 
 
     # Here, we'll overwrite the session variable called bag with the updated version.
     request.session['bag'] = bag
