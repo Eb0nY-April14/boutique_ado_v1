@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, reverse, HttpResponse
+from django.shortcuts import render, redirect, reverse, HttpResponse, get_object_or_404
 from django.contrib import messages
 
 from products.models import Product
@@ -15,9 +15,9 @@ def view_bag(request):
 def add_to_bag(request, item_id):
     """ Add a quantity of the specified product to the shopping bag """
 
-    # Here, we'll 1st get the product
-    product = Product.objects.get(pk=item_id)
-    # On the next line below, we get the quantity from the form.
+    # This below will get the product or return 404 error if not found
+    product = get_object_or_404(Product, pk=item_id)
+    # On the next line, we'll get the quantity from the form.
     quantity = int(request.POST.get('quantity'))
     # The code below this comment will get the redirect URL from the form
     # so as to know where to redirect once the process here is finished.
@@ -54,20 +54,26 @@ def add_to_bag(request, item_id):
         if item_id in list(bag.keys()):
             if size in bag[item_id]['items_by_size'].keys():
                 bag[item_id]['items_by_size'][size] += quantity
+                messages.success(
+                    request, f'Updated size {size.upper()} {product.name} quantity to {bag[item_id]["items_by_size"][size]}')
             else:
                 bag[item_id]['items_by_size'][size] = quantity
         else:
             bag[item_id] = {'items_by_size': {size: quantity}}
+            messages.success(
+                request, f'Added size {size.upper()} {product.name} to your bag')
     # This else part below takes care of products with no size
     else:
-        # This will stuff the product into the dictionary we just created along
-        # with the quantity & will do so by creating a key of the items id & set
-        # it equal to the quantity. If the item is already in the bag i.e there's
-        # already a key in the bag dictionary matching this product id, then we'll
-        # increment its quantity rightly
+        # This will stuff the product into the dictionary we just created
+        # along with the quantity & will do so by creating a key of the
+        # items id & set it equal to the quantity. If the item is already
+        # in the bag i.e there's already a key in the bag dictionary
+        # matching this product id, then we'll increment its quantity rightly
         if item_id in list(bag.keys()):
             # This updates the item quantity if it already exists
             bag[item_id] += quantity
+            messages.success(
+                request, f'Updated {product.name} quantity to {bag[item_id]}')
             # The else part below adds the item to the bag for the 1st time as
             # a dictionary with a key of items_by_size.
         else:
@@ -90,6 +96,7 @@ def add_to_bag(request, item_id):
 def adjust_bag(request, item_id):
     """Adjust the quantity of the specified product to the specified amount"""
 
+    product = get_object_or_404(Product, pk=item_id)
     quantity = int(request.POST.get('quantity'))
     size = None
     if 'product_size' in request.POST:
@@ -106,57 +113,72 @@ def adjust_bag(request, item_id):
         # rightly or else (else part below) remove the item.
         if quantity > 0:
             bag[item_id]['items_by_size'][size] = quantity
+            messages.success(
+                request, f'Updated size {size.upper()} {product.name} quantity to {bag[item_id]["items_by_size"][size]}')
         else:
             del bag[item_id]['items_by_size'][size]
-            # If that's the only size they had in the bag i.e if the 'items by size' dictionary
-            # is now empty which will evaluate to false, we'll remove the entire 'item id' so
-            # that there's no empty 'items by size' dictionary hanging around.
+            # If that's the only size they had in the bag i.e if the 'items by
+            # size' dictionary is now empty which will evaluate to false, we'll
+            # remove the entire 'item id' so that there's no empty 'items by
+            # size' dictionary hanging around.
             if not bag[item_id]['items_by_size']:
                 bag.pop(item_id)
+            messages.success(
+                request, f'Removed size {size.upper()} {product.name} from your bag')
     # The else part here below takes care of items with no size
     else:
         if quantity > 0:
             bag[item_id] = quantity
+            messages.success(
+                request, f'Updated {product.name} quantity to {bag[item_id]}')
         else:
             bag.pop(item_id)
+            messages.success(request, f'Removed {product.name} from your bag')
 
     request.session['bag'] = bag
-    # Lastly, we'll redirect back to the view bag URL using the reverse function for that.
+    # Lastly, we'll redirect back to the view bag URL using the reverse
+    # function for that.
     return redirect(reverse('view_bag'))
 
 
-# The 'remove from bag' view below will allow users to remove items directly without setting
-# the quantity to 0 manually & is similar to both views above.
+# The 'remove from bag' view below will allow users to remove items directly
+# without setting the quantity to 0 manually & is similar to both views above.
 def remove_from_bag(request, item_id):
     """Remove the item from the shopping bag"""
 
-    # We wrapped this entire block of code in a try block to catch any exceptions that
-    # happen in order to return a 500 server error.
+    # We wrapped this entire block of code in a try block to catch any
+    # exceptions that may happen & then return a 500 server error.
     try:
+        product = get_object_or_404(Product, pk=item_id)
         size = None
         if 'product_size' in request.POST:
             size = request.POST['product_size']
         bag = request.session.get('bag', {})
 
-        # If the user is removing a product with sizes, we want to remove only the specific
-        # size they requested so if size is in request.post, we'll delete that size key in
-        # the items by size dictionary.
+        # If the user is removing a product with sizes, we want to remove only
+        # the specific size they requested so if size is in request.post, we'll
+        # delete that size key in the items by size dictionary.
         if size:
             del bag[item_id]['items_by_size'][size]
-            # If that's the only size they had in the bag i.e if the 'items by size' dictionary
-            # is now empty which will evaluate to false, we'll remove the entire 'item id' so
-            # that there's no empty 'items by size' dictionary hanging around.
+            # If that's the only size they had in the bag i.e if the 'items by
+            # size' dictionary is now empty which will evaluate to false, we'll
+            # remove the entire 'item id' so that there's no empty 'items by
+            # size' dictionary hanging around.
             if not bag[item_id]['items_by_size']:
                 bag.pop(item_id)
+            messages.success(
+                request, f'Removed size {size.upper()} {product.name} from your bag')
         # The else part here below takes care of items with no size
         else:
             bag.pop(item_id)
+            messages.success(request, f'Removed {product.name} from your bag')
 
         request.session['bag'] = bag
-        # Since this view will be posted to from a JScript function, instead of returning
-        # a redirect, we want to return an actual 200 HTTP response to show that the item
-        # was successfully removed.
+        # Since this view will be posted to from a JScript function, instead
+        # of returning a redirect, we want to return an actual 200 HTTP
+        # response to show that the item was successfully removed.
         return HttpResponse(status=200)
 
     except Exception as e:
+        messages.error(request, f'Error removing item: {e}')
         return HttpResponse(status=500)
