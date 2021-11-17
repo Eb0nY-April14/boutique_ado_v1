@@ -116,6 +116,25 @@ right of the screen. */
     cursor: pointer;
 }
 
+/* ------------------------------- bootstrap toasts */
+/* This CSS below will position the message container in the upper right of  
+the screen & give it a high Z index so it's always on top of everything else. */
+
+.message-container {
+    position: fixed;
+    top: 72px;
+    right: 15px;
+    z-index: 99999999999;
+}
+
+.custom-toast {
+    overflow: visible;
+}
+
+.toast-capper {
+    height: 2px;
+}
+
 
 /* -------------------------------- Media Queries */
 

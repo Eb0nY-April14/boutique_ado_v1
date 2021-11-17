@@ -116,9 +116,36 @@
           </div>
       </header>
 
+      <!-- This is the message container that will be used by toast_success, toast_error,
+      toast_info & toast_warning.html templatesto display the appropriate message to the user. -->
       {% if messages %}
-        <div class="message-container"></div>
-      {% endif %}
+        <!-- Inside the message container, we want to iterate through any messages
+        sent back form the server using if statement & render one of these below. -->
+        <div class="message-container">
+            {% for message in messages %}
+                <!-- Django messages have 'levels' which are classifiers like debug, 
+                info, error etc. for different message types. These levels can also 
+                be represented with an integer too (see Django Docs) so we can choose 
+                which of the includes to render based on the message level. With the 
+                use of a simple 'with' statement, we can check the level of the message
+                & render the appropriate toast. In Django, level 40 message is an error,
+                30 is a warning, 25 is success & will default to using the info toast for 
+                everything else. -->
+                {% with message.level as level %}
+                    {% if level == 40 %}
+                        {% include 'includes/toasts/toast_error.html' %}
+                    {% elif level == 30 %}
+                        {% include 'includes/toasts/toast_warning.html' %}
+                    {% elif level == 25 %}
+                        {% include 'includes/toasts/toast_success.html' %}
+                    {% else %}
+                        {% include 'includes/toasts/toast_info.html' %}
+                    {% endif %}
+                {% endwith %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
 
       {% block page_header %}
       {% endblock %}
@@ -127,6 +154,17 @@
       {% endblock %}
 
       {% block postloadjs %}
+      <!-- This bootstrap JScript will be used to show the toast to the user.
+      It will call the toast method from bootstrap with an option of show on 
+      any elements with the toast class. Putting this in the base HTML template 
+      will ensure that every page that loads will immediately call the show option 
+      on all toasts that have been rendered in the messages container.This also explains
+      why we've been including block dot super in our templates when overriding the 
+      post loadjs block to ensure that any JS we've written in the templates that extend 
+      this one won't overwrite this call to show all the toasts. -->
+      <script type="text/javascript">
+        $('.toast').toast('show');
+    </script>
       {% endblock %}
 
     

@@ -89,6 +89,9 @@ TEMPLATES = [
     },
 ]
 
+# This tells settings to store messages in the session. It's required if we use gitpod.
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
 # This authentication backends must be in my project's settings.py file
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
