@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% load static %}
+<!-- We also need to load 'bag tools' at the top just like we did on the
+shopping bag page since we're using bag items here below. -->
+{% load bag_tools %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'checkout/css/checkout.css' %}">
+{% endblock %}
+
+{% block page_header %}
+    <div class="container header-container">
+        <div class="row">
+            <div class="col"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <hr>
+                <h2 class="logo-font mb-4">Checkout</h2>
+                <hr>
+            </div>
+        </div>
+
+        <!-- Here, we have an order summary header & a row containing some simple column headers. -->
+        <div class="row">
+            <div class="col-12 col-lg-6 order-lg-last mb-5">
+                <p class="text-muted">Order Summary ({{ product_count }})</p>
+                <div class="row">
+                    <div class="col-7 offset-2">
+                        <p class="mb-1 mt-0 small text-muted">Item</p>
+                    </div>
+                    <div class="col-3 text-right">
+                        <p class="mb-1 mt-0 small text-muted">Subtotal</p>
+                    </div>
+                </div>
+                <!-- Since we still have access to all the 'bag items' with the help 
+                of our context processor, we'll loop through each item. -->
+                {% for item in bag_items %}
+                    <div class="row">
+                        <div class="col-2 mb-1">
+                            <a href="{% url 'product_detail' item.product.id %}">
+                                <!-- We'll create a row with the image. -->
+                                {% if item.product.image %}
+                                    <img class="w-100" src="{{ item.product.image.url }}" alt="{{ product.name }}">
+                                {% else %}
+                                    <img class="w-100" src="{{ MEDIA_URL }}noimage.png" alt="{{ product.name }}">
+                                {% endif %}
+                            </a>
+                        </div>
+                        <!-- Display some information about that item & its subtotal. -->
+                        <div class="col-7">
+                            <p class="my-0"><strong>{{ item.product.name }}</strong></p>
+                            <p class="my-0 small">Size: {% if item.product.has_sizes %}{{ item.size|upper }}{% else %}N/A{% endif %}</p>
+                            <p class="my-0 small text-muted">Qty: {{ item.quantity }}</p>
+                        </div>
+                        <div class="col-3 text-right">
+                            <p class="my-0 small text-muted">${{ item.product.price | calc_subtotal:item.quantity }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+                <!--  Finally, there's a margin-less horizontal rule. -->
+                <hr class="my-0">
+                <!-- And a summary row containing the totals & delivery 
+                cost for the order. -->
+                <div class="row text-black text-right">
+                    <div class="col-7 offset-2">
+                        <p class="my-0">Order Total:</p>
+                        <p class="my-0">Delivery:</p>
+                        <p class="my-0">Grand Total:</p>
+                    </div>
+                    <div class="col-3">
+                        <p class="my-0">${{ total | floatformat:2 }}</p>
+                        <p class="my-0">${{ delivery | floatformat:2 }}</p>
+                        <p class="my-0"><strong>${{ grand_total | floatformat:2 }}</strong></p>
+                    </div>
+                </div>
+            </div>
+                            <!-- Checkout form  section -->
+            <div class="col-12 col-lg-6">
+                <p class="text-muted">Please fill out the form below to complete your order</p>
+                <form action="{% url 'checkout' %}" method="POST" id="payment-form">
+                    {% csrf_token %}
+                    <!-- We'll render the fields individually & divide them into 3 fieldsets. -->
+                    <fieldset class="rounded px-3 mb-5">
+                        <!-- The 1st fieldset will have a legend with a label of 'Details'
+                        which will include the user's full name and email address. -->
+                        <legend class="fieldset-label small text-black px-2 w-auto">Details</legend>
+                        <!-- The next 2 lines of code below this comment will render the fields 
+                        by accessing the form, call them by name & type them into the 'as crispy field' 
+                        template tag to take advantage of all the crispy form styling. -->
+                        {{ order_form.full_name | as_crispy_field }}
+                        {{ order_form.email | as_crispy_field }}
+                    </fieldset>
+
+                    <!-- The 2nd fieldset below contains the rest of the forms fields all 
+                    rendered as crispy fields & will have a label of 'Delivery', using this 
+                    fieldset for all the users delivery information. -->
+                    <fieldset class="rounded px-3 mb-5">
+                        <legend class="fieldset-label small text-black px-2 w-auto">Delivery</legend>
+                        {{ order_form.phone_number | as_crispy_field }}
+                        {{ order_form.country | as_crispy_field }}
+                        {{ order_form.postcode | as_crispy_field }}
+                        {{ order_form.town_or_city | as_crispy_field }}
+                        {{ order_form.street_address1 | as_crispy_field }}
+                        {{ order_form.street_address2 | as_crispy_field }}
+                        {{ order_form.county | as_crispy_field }}
+                        <div class="form-check form-check-inline float-right mr-0">
+                            <!-- In this 2nd fieldset, we'll also include an inline checkbox 
+                            for allowing authenticated users to save the information in the 
+                            form to their profile. -->
+							{% if user.is_authenticated %}
+								<label class="form-check-label" for="id-save-info">Save this delivery information to my profile</label>
+                                <!-- If the profiles app is created & a user submits the form with this input box checked,
+                                it'll autofill the user's profile with this information & also 
+                                auto-fill it with the same information next time they checkout. -->
+                                <input class="form-check-input ml-2 mr-0" type="checkbox" id="id-save-info" name="save-info" checked>
+                            <!-- And if they're not authenticated we'll give them a link to signup or login. -->
+							{% else %}
+								<label class="form-check-label" for="id-save-info">
+                                    <a class="text-info" href="{% url 'account_signup' %}">Create an account</a> or 
+                                    <a class="text-info" href="{% url 'account_login' %}">login</a> to save this information
+                                </label>
+							{% endif %}
+						</div>
+                    </fieldset>
+                    <!-- The 3rd (i.e final) fieldset is for the users payment information.
+                    There are no form fields for this as we'll use stripe for this portion
+                    but we need 2 empty divs in this fieldset to hold the stripe elements. -->
+                    <fieldset class="px-3">
+                        <legend class="fieldset-label small text-black px-2 w-auto">Payment</legend>
+                        <!-- A Stripe card elememt will go here. This'll be used to hold Stripe 
+                        card element & has an id of 'card element'. It'll contain all the fields 
+                        necessary for filling in the users credit card number, expiration date, 
+                        security code & postal code if applicable. It'll be pre-built & secure 
+                        thanks to stripe -->
+                        <div class="mb-3" id="card-element"></div>
+
+                        <!-- This will be used to display form errors, has an id of 'card errors' -->
+                        <div class="mb-3 text-danger" id="card-errors" role="alert"></div>
+                    </fieldset>
+
+                    <!-- The Submit Button div class. -->
+                    <div class="submit-button text-right mt-5 mb-2">  
+                        <!-- This'll contain a standard href link back to the shopping bag in case 
+                        the user wants to adjust anything in their order. -->
+						<a href="{% url 'view_bag' %}" class="btn btn-outline-black rounded-0">
+							<span class="icon">
+								<i class="fas fa-chevron-left"></i>
+							</span>
+							<span class="font-weight-bold">Adjust Bag</span>
+						</a>
+                        <!-- This is the submit button with an id which we'll access with JScript in 
+                        order to submit the form. -->
+						<button id="submit-button" class="btn btn-black rounded-0">
+							<span class="font-weight-bold">Complete Order</span>
+							<span class="icon">
+								<i class="fas fa-lock"></i>
+							</span>
+						</button>
+                        <!-- Lastly, this contains a small notification at the bottom alerting 
+                        the user that their card is about to be charged. -->
+						<p class="small text-danger my-0">
+							<span class="icon">
+								<i class="fas fa-exclamation-circle"></i>
+							</span>
+							<span>Your card will be charged <strong>${{ grand_total|floatformat:2 }}</strong></span>
+						</p>
+					</div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

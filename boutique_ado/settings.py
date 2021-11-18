@@ -48,6 +48,9 @@ INSTALLED_APPS = [
     'products',
     'bag',
     'checkout',
+
+    # Other
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [
@@ -61,6 +64,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'boutique_ado.urls'
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 TEMPLATES = [
     {
@@ -76,6 +81,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',  # required by allauth
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
                 # We'll add the context processor created in contexts.py file
                 # earlier to the list of context processors in the templates
                 # variable in settings.py to make it available to the entire
@@ -86,6 +92,21 @@ TEMPLATES = [
                 # different apps.
                 'bag.contexts.bag_contents',
             ],
+            # To use crispy forms in a couple of templates, we have to
+            # load the template tags like we load static in all our
+            # templates. This becomes tedious if we want to use it all
+            # over our application so instead of doing that, we'll add
+            # a list called 'built-ins' underneath context processors in
+            # the 'templates' setting in settings.py which will contain
+            # all the tags we want available in all our templates by
+            # default.
+            'builtins': [
+                # Adding both 'crispy forms tags' & 'crispy forms field'
+                # will give us access to everything we need from crispy 
+                # forms across all templates by default.
+                'crispy_forms.templatetags.crispy_forms_tags',
+                'crispy_forms.templatetags.crispy_forms_field',
+            ]
         },
     },
 ]
