@@ -10,12 +10,12 @@ we need as their text so we can get them just by getting
 their ids & using the .text function. We'll also slice off 
 the 1st and last character on each since they'll have 
 quotation marks which we don't want. */
-var stripe_public_key = $('#id_stripe_public_key').text().slice(1, -1);
-var client_secret = $('#id_client_secret').text().slice(1, -1);
+var stripePublicKey = $('#id_stripe_public_key').text().slice(1, -1);
+var clientSecret = $('#id_client_secret').text().slice(1, -1);
 
 /* Here, we'll set up stripe by creating a variable using our stripe public 
 key. This is made possible by the stripe js included in the base template. */
-var stripe = Stripe(stripe_public_key);
+var stripe = Stripe(stripePublicKey);
 /* Then we can use the 'stripe' variable created above to create an instance 
 of stripe elements. */ 
 var elements = stripe.elements();
@@ -43,6 +43,75 @@ var style = {
 };
 // We'll also use the stripe 'elements' created above to create a card element.
 var card = elements.create('card', {style: style});
-/* Finally, we mount the 'card' element to the div we created within the form 
-that has an id of 'card-element' in checkout.html. */
+/* Finally, we mount the 'card' element to the div we created within  
+the form that has an id of 'card-element' in checkout.html. */
 card.mount('#card-element');
+
+// Handle realtime validation errors on the card element
+/* 1stly, we'll add an event listener on the card element to 
+listen for any change event & every time it changes we'll check 
+to see if there are any errors. */ 
+card.addEventListener('change', function (event) {
+    var errorDiv = document.getElementById('card-errors');
+    /* If there are any errors, we'll display them in the card errors div 
+    we created near the card element on the checkout page using back ticks. */ 
+    if (event.error) {
+        var html = `
+            <span class="icon" role="alert">
+                <i class="fas fa-times"></i>
+            </span>
+            <span>${event.error.message}</span>
+        `;
+        $(errorDiv).html(html);
+      // The else part is activated if there are no errors.  
+    } else {
+        errorDiv.textContent = '';
+    }
+});
+
+// Handle form submit
+/* This gets the form element */ 
+var form = document.getElementById('payment-form');
+/* We then add an event listener to the payment forms 'submit' event. */ 
+form.addEventListener('submit', function(ev) {
+    /* The listener attached to the 'submit' event then prevents its 
+    default action i.e post from taking place & instead, execute the 
+    code after it. */ 
+    ev.preventDefault();
+    /* Here, we'll disable both the card element & submit button to 
+    prevent multiple submissions before calling out to stripe.  */ 
+    card.update({ 'disabled': true});
+    $('#submit-button').attr('disabled', true);
+    /* Here, we call the confirm card payment method which  uses the 
+    'stripe.confirm card payment' method to send the card information 
+    securely to stripe. */ 
+    stripe.confirmCardPayment(clientSecret, {
+        // This provides the card to stripe 
+        payment_method: {
+            card: card,
+        }
+        /* It then executes this function below on the result. */ 
+    }).then(function(result) {
+        /* If there's an error, we handle it same way as done earlier 
+        above i.e put the error right into the card error div. */ 
+        if (result.error) {
+            var errorDiv = document.getElementById('card-errors');
+            var html = `
+                <span class="icon" role="alert">
+                <i class="fas fa-times"></i>
+                </span>
+                <span>${result.error.message}</span>`;
+            $(errorDiv).html(html);
+            /* If there's an error, we also want to re-enable the card  
+            element & submit button to allow the user to fix it. */ 
+            card.update({ 'disabled': false});
+            $('#submit-button').attr('disabled', false);
+            /* But if no error i.e the status of the payment intent comes back 
+            as succeeded, we'll submit the form. */ 
+        } else {
+            if (result.paymentIntent.status === 'succeeded') {
+                form.submit();
+            }
+        }
+    });
+});

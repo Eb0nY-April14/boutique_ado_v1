@@ -102,7 +102,7 @@ TEMPLATES = [
             # default.
             'builtins': [
                 # Adding both 'crispy forms tags' & 'crispy forms field'
-                # will give us access to everything we need from crispy 
+                # will give us access to everything we need from crispy
                 # forms across all templates by default.
                 'crispy_forms.templatetags.crispy_forms_tags',
                 'crispy_forms.templatetags.crispy_forms_field',
@@ -203,6 +203,19 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# These 2 new variables added below will be used to calculate delivery costs
+# Stripe
+# These 1st 2 new variables below this comment
+# will be used to calculate delivery costs
 FREE_DELIVERY_THRESHOLD = 50
 STANDARD_DELIVERY_PERCENTAGE = 10
+STRIPE_CURRENCY = 'usd'
+
+# These next 2 variables are important & we'll get them from the environment.
+# The reason is because even though the public key is already in our github
+# from the last commit, we really don't want the secret key in there because
+# the secret key can be used to do everything on stripe including creating
+# charges, making payments, issuing refunds, & even updating our own account
+# information so it's very important to keep the secret key safe & out of 
+# version control. Both variables will have empty default values.
+STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY', '')
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
