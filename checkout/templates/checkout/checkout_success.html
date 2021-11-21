@@ -27,7 +27,193 @@
 
         <div class="row">
             <!-- This empty column on the next line is where we'll render the order summary. -->
-            <div class="col-12 col-lg-7"></div>
+            <div class="col-12 col-lg-7">
+                <!-- This div will have a bordered wrapper class to go around the whole 
+                order confirmation inside the empty column we created in the last video. -->
+                <div class="order-confirmation-wrapper p-2 border">
+                    <!-- This wrapper will have 4 rows with a full-width column containing 
+                    some small muted text, 1 for each section namely Order Info, Order Details,
+                    Delivering To & Billing Info. -->
+                    <div class="row">
+                        <div class="col">
+                            <small class="text-muted">Order Info:</small>
+                        </div>
+                    </div>
+
+                    <!-- Under the order info section, we'll create a single row which will 
+                    be split into 2 columns of 1/3 & 2/3 & the 2nd column will have right-
+                    aligned text. Same also applies to all other sections below. -->
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <!--  The 1st column will contain the label for order number 
+                            enclosed within a paragraph. -->
+                            <p class="mb-0 text-black font-weight-bold">Order Number</p>
+                        </div>
+                        <div class="col-12 col-md-8 text-md-right">
+                            <!-- The 2nd will contain the actual order number itself. -->
+                            <p class="mb-0">{{ order.order_number }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <p class="mb-0 text-black font-weight-bold">Order Date</p>
+                        </div>
+                        <div class="col-12 col-md-8 text-md-right">
+                            <p class="mb-0">{{ order.date }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <small class="text-muted">Order Details:</small>
+                        </div>
+                    </div>
+
+                    <!-- In the 'order details' section, we need to wrap this code block below 
+                    in a for loop to generate a new row for each line item. 
+                    NOTE: 'lineitems' used in the for-loop comes from the relates_name attribute 
+                    on the order field of the OrderLineItem model. -->
+                    {% for item in order.lineitems.all %}
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <!-- Then, its paragraph text will generate the product name, its
+                            size if it has one, its quantity & price. -->
+                            <p class="small mb-0 text-black font-weight-bold">
+                                {{ item.product.name }}{% if item.product_size %} - Size {{ item.product.size|upper }}{% endif %}
+                            </p>
+                        </div>
+                        <div class="col-12 col-md-8 text-md-right">
+                            <p class="small mb-0">{{ item.quantity }} @ ${{ item.product.price }} each</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <!-- Under the 'Delivering To' section, we'll need 8 rows, 1 for each
+                    form field i.e we want 1 line for each field from the order model. -->
+                    <div class="row">
+                        <div class="col">
+                            <small class="text-muted">Delivering To:</small>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <p class="mb-0 text-black font-weight-bold">Full Name</p>
+                        </div>
+                        <div class="col-12 col-md-8 text-md-right">
+                            <p class="mb-0">{{ order.full_name }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <p class="mb-0 text-black font-weight-bold">Address 1</p>
+                        </div>
+                        <div class="col-12 col-md-8 text-md-right">
+                            <p class="mb-0">{{ order.street_address1 }}</p>
+                        </div>
+                    </div>
+
+                    <!-- We'll wrap the fields that are not required in the order model in 
+                    'if statements' so we only render that part of the summary if the user 
+                    has filled them out i.e 'street address2', county & postcode. -->
+                    {% if order.street_address2 %}
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <p class="mb-0 text-black font-weight-bold">Address 2</p>
+                        </div>
+                        <div class="col-12 col-md-8 text-md-right">
+                            <p class="mb-0">{{ order.street_address1 }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if order.county %}
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <p class="mb-0 text-black font-weight-bold">County</p>
+                        </div>
+                        <div class="col-12 col-md-8 text-md-right">
+                            <p class="mb-0">{{ order.county }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <p class="mb-0 text-black font-weight-bold">Town or City</p>
+                        </div>
+                        <div class="col-12 col-md-8 text-md-right">
+                            <p class="mb-0">{{ order.town_or_city }}</p>
+                        </div>
+                    </div>
+
+                    {% if order.postcode %}
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <p class="mb-0 text-black font-weight-bold">Postal Code</p>
+                        </div>
+                        <div class="col-12 col-md-8 text-md-right">
+                            <p class="mb-0">{{ order.postcode }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <p class="mb-0 text-black font-weight-bold">Country</p>
+                        </div>
+                        <div class="col-12 col-md-8 text-md-right">
+                            <p class="mb-0">{{ order.country }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <p class="mb-0 text-black font-weight-bold">Phone Number</p>
+                        </div>
+                        <div class="col-12 col-md-8 text-md-right">
+                            <p class="mb-0">{{ order.phone_number }}</p>
+                        </div>
+                    </div>
+
+                    <!-- We'll need 3 rows under the billing info section. Here, we'll render 
+                    the order total, delivery charges & grand total  -->
+                    <div class="row">
+                        <div class="col">
+                            <small class="text-muted">Billing Info:</small>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <p class="mb-0 text-black font-weight-bold">Order Total</p>
+                        </div>
+                        <div class="col-12 col-md-8 text-md-right">
+                            <p class="mb-0">{{ order.order_total }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <p class="mb-0 text-black font-weight-bold">Delivery</p>
+                        </div>
+                        <div class="col-12 col-md-8 text-md-right">
+                            <p class="mb-0">{{ order.delivery_cost }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <p class="mb-0 text-black font-weight-bold">Grand Total</p>
+                        </div>
+                        <div class="col-12 col-md-8 text-md-right">
+                            <p class="mb-0">{{ order.grand_total }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <!-- We'll paste in a button in this new row so the user can now take a look at the 
             latest deals. -->
