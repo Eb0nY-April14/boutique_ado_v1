@@ -176,6 +176,17 @@ shopping bag page since we're using bag items here below. -->
             </div>
         </div>
     </div>
+    <!-- Here in this div, we'll create a 'loading overlay' div. This will 
+    have a big giant spinner icon right in the center of the screen & a 
+    transparent blue overlay to cover up the page & indicate that the payment 
+    is being processed & we'll style this in checkout.css. -->
+    <div id="loading-overlay">
+        <h1 class="text-light logo-font loading-spinner">
+            <span class="icon">
+                <i class="fas fa-3x fa-sync-alt fa-spin"></i>
+            </span>
+        </h1>
+    </div>
 {% endblock %}
 
 {% block postloadjs %}

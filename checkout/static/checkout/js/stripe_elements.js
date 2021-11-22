@@ -82,6 +82,10 @@ form.addEventListener('submit', function(ev) {
     prevent multiple submissions before calling out to stripe.  */ 
     card.update({ 'disabled': true});
     $('#submit-button').attr('disabled', true);
+    /* We'll trigger the overlay & fade out the form when the user clicks the submit
+button and reverse that if there's any error. */ 
+    $('#payment-form').fadeToggle(100);
+    $('#loading-overlay').fadeToggle(100);
     /* Here, we call the confirm card payment method which  uses the 
     'stripe.confirm card payment' method to send the card information 
     securely to stripe. */ 
