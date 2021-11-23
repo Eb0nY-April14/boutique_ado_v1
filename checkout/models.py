@@ -4,6 +4,9 @@ from django.db import models
 from django.db.models import Sum
 from django.conf import settings
 
+from django_countries.fields import CountryField
+
+
 # We'll import from product model since the 'order line item'
 # model has a foreign key to it.
 from products.models import Product
@@ -21,7 +24,10 @@ class Order(models.Model):
     full_name = models.CharField(max_length=50, null=False, blank=False)
     email = models.EmailField(max_length=254, null=False, blank=False)
     phone_number = models.CharField(max_length=20, null=False, blank=False)
-    country = models.CharField(max_length=40, null=False, blank=False)
+    # The 'country' field takes a blank label for which I'll use 'Country' with 
+    # the star to indicate it's a required field since select boxes don't have a 
+    # placeholder.
+    country = CountryField(blank_label='Country *', null=False, blank=False)
     postcode = models.CharField(max_length=20, null=True, blank=True)
     town_or_city = models.CharField(max_length=40, null=False, blank=False)
     street_address1 = models.CharField(max_length=80, null=False, blank=False)

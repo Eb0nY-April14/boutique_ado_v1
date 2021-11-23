@@ -31,12 +31,12 @@ class OrderForm(forms.ModelForm):
             'full_name': 'Full Name',
             'email': 'Email Address',
             'phone_number': 'Phone Number',
-            'country': 'Country',
+            # 'country': 'Country',
             'postcode': 'Postal Code',
             'town_or_city': 'Town or City',
             'street_address1': 'Street Address 1',
             'street_address2': 'Street Address 2',
-            'county': 'County',
+            'county': 'County, State or Locality',
         }
 
     # Here we'll set the autofocus attribute on the full name field to true
@@ -44,15 +44,16 @@ class OrderForm(forms.ModelForm):
         self.fields['full_name'].widget.attrs['autofocus'] = True
         # Lastly, we iterate through the forms fields
         for field in self.fields:
-            # This will add a star to the placeholder if it's a required
-            # field on the model.
-            if self.fields[field].required:
-                placeholder = f'{placeholders[field]} *'
-            else:
-                placeholder = placeholders[field]
-            # This sets all the placeholder attributes to their values in the
-            # dictionary above.
-            self.fields[field].widget.attrs['placeholder'] = placeholder
+            if field != 'country':
+                # This will add a star to the placeholder if it's a required
+                # field on the model.
+                if self.fields[field].required:
+                    placeholder = f'{placeholders[field]} *'
+                else:
+                    placeholder = placeholders[field]
+                # This sets all the placeholder attributes to their values in the
+                # dictionary above.
+                self.fields[field].widget.attrs['placeholder'] = placeholder
             # We add a CSS class that we'll use in base.css file later
             self.fields[field].widget.attrs['class'] = 'stripe-style-input'
             # This will remove the form fields labels since we won't need
