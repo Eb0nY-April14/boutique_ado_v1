@@ -73,9 +73,24 @@ def checkout(request):
         }
         # This will create an instance of the form using the form data.
         order_form = OrderForm(form_data)
-        # This wll save the order if the form is valid.
+        # This wll save the order if the form is valid. We'll also get 
+        # the client secret added as an hidden input to the form in the 
+        # check out page if the order form is valid.
         if order_form.is_valid():
-            order = order_form.save()
+            # To prevent multiple save events from being executed on 
+            # the database, we'll add 'commit equals false' here below
+            # to prevent the 1st one from happening.
+            order = order_form.save(commit=False)
+            # We'll then split it to get the payment intent id as we did 
+            # in the 'cache check out data' view.
+            pid = request.POST.get('client_secret').split('_secret')[0]
+            order.stripe_pid = pid
+            # We'll also add the shopping bag here by simply using dumps 
+            # to dump it to a JSON string & set it on the order.
+            order.original_bag = json.dumps(bag)
+            # Then save the order.
+            order.save()
+
             # We then iterate through the bag items to create each line item.
             for item_id, item_data in bag.items():
                 try:

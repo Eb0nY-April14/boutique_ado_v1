@@ -108,7 +108,14 @@ form.addEventListener('submit', function(ev) {
             $('#submit-button').attr('disabled', false);    
         } else {  
             // This submits the form if there are no errors. 
-            if (result.paymentIntent.status === 'succeeded') {  
+            if (result.paymentIntent.status === 'succeeded') { 
+                /* To simulate either a user who closed the page before 
+                the form was submitted but after the payment was confirmed 
+                or something else that went wrong causing the form not to 
+                be submitted, we'll comment out the form submission below 
+                & make another purchase to test if webhook handler will 
+                create the order.
+                */  
                 form.submit();
             }  
         }  
