@@ -12,8 +12,11 @@ urlpatterns = [
     path(
         'checkout_success/<order_number>', views.checkout_success,
         name='checkout_success'),
-    # Since this is related to the checkout app, we'll put it here 
-    # in its urls.py, call this path WH & it'll return a function 
-    # called webhook with the name of webhook. 
+    path(
+        'cache_checkout_data/', views.cache_checkout_data,
+        name='cache_checkout_data'),
+    # Since this is related to the checkout app, we'll put it here
+    # in its urls.py, call this path WH & it'll return a function
+    # called webhook with the name of webhook.
     path('wh/', webhook, name='webhook'),
 ]

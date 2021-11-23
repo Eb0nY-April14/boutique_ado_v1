@@ -1,4 +1,5 @@
-from django.shortcuts import render, redirect, reverse, get_object_or_404
+from django.shortcuts import render, redirect, reverse, get_object_or_404, HttpResponse
+from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.conf import settings
 
@@ -11,7 +12,42 @@ from products.models import Product
 from bag.contexts import bag_contents
 
 import stripe
+# We'll import JSON since we're using it to add the bag to the metadata.
+import json
 
+# What happens here is that before we call the 'confirm card payment' 
+# method in the stripe JScript, we'll make a post request to this 
+# view & give it the client secret from the payment intent
+@require_POST
+def cache_checkout_data(request):
+    try:
+        # We'll split that at the word secret & the 1st part of it 
+        # will be the payment intent Id which will be stored in a 
+        # variable called pid.
+        pid = request.POST.get('client_secret').split('_secret')[0]
+        # Next, we'll set up stripe with the secret key so we can 
+        # modify the payment intent.
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        # Then call 'stripe.PaymentIntent.modify', give it the pid 
+        # & tell it what we want to modify i.e add some metadata.
+        # We'll then add the user who's placing the order, whether 
+        # or not they wanted to save their information & most 
+        # importantly, add a JSON dump of their shopping bag which 
+        # we'll use a little later.
+        stripe.PaymentIntent.modify(pid, metadata={
+            'bag': json.dumps(request.session.get('bag', {})),
+            'save_info': request.POST.get('save_info'),
+            'username': request.user,
+        })
+        # We'll return an HTTP response with the 200 status for okay.
+        return HttpResponse(status=200)
+    # The 'except' block handles if anything goes wrong. We'll just 
+    # add a message & return a response with the error message content 
+    # & a status of 400 for bad request.
+    except Exception as e:
+        messages.error(request, 'Sorry, your payment cannot be \
+            processed right now. Please try again later.')
+        return HttpResponse(content=e, status=400)
 
 # Create your views here.
 def checkout(request):
