@@ -1,1 +1,27 @@
+<!-- This account/base.html extends the main allauth base.html. -->
 {% extends "base.html" %}
+
+<!-- The code within this block content will replace the main allauth base templates 
+content block. Inside the block, we'll add our header container which has the proper 
+padding, the overlay to make the background white, a row & then a 50% width column. -->
+{% block content %}
+    <div class="container header-container">
+        <div class="overlay"></div>
+        <div class="row">
+            <div class="col-6">
+                <!-- We'll create a div with a class of 'allauth form inner content'.
+                The issue with this is that since this block is now called 'content', 
+                it means that the login templates 'content' block will just replace it 
+                so the change won't have any effect but if we rename the login templates 
+                content block to something else, we could stick it inside this div instead. -->
+                <div class="allauth-form-inner-content">
+                    <!-- To solve this issue, we'll open a new block below called 'inner 
+                    content', then move to the login template & rename its content block 
+                    to 'inner content'. -->
+                    {% block inner_content %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
