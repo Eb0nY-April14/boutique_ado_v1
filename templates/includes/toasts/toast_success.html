@@ -23,8 +23,11 @@ notification after a few seconds & instead, give the user the ability to dismiss
                 <hr class="mt-1 mb-3">
             </div>
         </div>
-        <!-- This below will render the shopping bag items only if there's a grand total. -->
-        {% if grand_total %}
+        <!-- This below will render the shopping bag items only if there's a grand total
+        & also checks that we are not on the profile page. This simple change will ensure 
+        that the shopping bag only shows up in the success message when we're not on the 
+        profile page. -->
+        {% if grand_total and not on_profile_page %}
         <!--  Below is a paragraph which shows the number of items in the bag in parentheses. -->
             <p class="logo-font bg-white text-black py-1">Your Bag ({{ product_count }})</p>
             <div class="bag-notification-wrapper">

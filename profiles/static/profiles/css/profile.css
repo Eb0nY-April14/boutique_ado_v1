@@ -1,0 +1,21 @@
+/* Makes the text colour of the input black. */
+#profile-update-form .form-control {
+    color: #000;
+}
+
+/* This colours the profile forms placeholders appropriately. */
+#profile-update-form input::placeholder {
+    color: #aab7c4;
+}
+
+/* This makes the country field & all its options black by default 
+except for the 1st one . */
+#id_default_country,
+#id_default_country option:not(:first-child) {
+    color: #000;
+}
+
+/* This makes the 1st option element the colour of the placeholder. */
+#id_default_country option:first-child {
+    color: #aab7c4;
+}
