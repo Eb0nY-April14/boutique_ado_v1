@@ -6,10 +6,10 @@ from django.conf import settings
 
 from django_countries.fields import CountryField
 
-
 # We'll import from product model since the 'order line item'
 # model has a foreign key to it.
 from products.models import Product
+from profiles.models import UserProfile
 
 
 # Create your models here. These models will be used to create
@@ -21,12 +21,21 @@ class Order(models.Model):
     # orders. The 'Order' model will handle all orders across the store
     # & will be related to another model called 'order line item'.
     order_number = models.CharField(max_length=32, null=False, editable=False)
+    # We'll use models.SET_NULL if the profile is deleted since that will allow
+    # us to keep an order history in the admin even if the user is deleted &
+    # will also allow this to be either null or blank so that users who don't
+    # have an account can still make purchases. Also, adding a related name of
+    # orders will allow us access the users orders by calling something like
+    # 'user.userprofile.orders'.
+    user_profile = models.ForeignKey(
+        UserProfile, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='orders')
     full_name = models.CharField(max_length=50, null=False, blank=False)
     email = models.EmailField(max_length=254, null=False, blank=False)
     phone_number = models.CharField(max_length=20, null=False, blank=False)
-    # The 'country' field takes a blank label for which I'll use 'Country' with 
-    # the star to indicate it's a required field since select boxes don't have a 
-    # placeholder.
+    # The 'country' field takes a blank label for which I'll use 'Country'
+    # with the star to indicate it's a required field since select boxes
+    # don't have a placeholder.
     country = CountryField(blank_label='Country *', null=False, blank=False)
     postcode = models.CharField(max_length=20, null=True, blank=True)
     town_or_city = models.CharField(max_length=40, null=False, blank=False)
@@ -36,18 +45,22 @@ class Order(models.Model):
     date = models.DateTimeField(auto_now_add=True)  # date order was created
     # The last 3 fields below will be calculated using a model method
     # whenever an order is saved.
-    delivery_cost = models.DecimalField(max_digits=6, decimal_places=2, null=False, default=0)
-    order_total = models.DecimalField(max_digits=10, decimal_places=2, null=False, default=0)
-    grand_total = models.DecimalField(max_digits=10, decimal_places=2, null=False, default=0)
-    # We added this 2 new fields to combat the issue with the same customer purchasing 
-    # the same things twice on separate occasions & finding only the 1st order in the 
-    # database when they place the 2nd one implying that the 2nd-order was never added.
-    # The 1st new model added is a text field that will contain the original shopping 
-    # bag that created it.
+    delivery_cost = models.DecimalField(
+        max_digits=6, decimal_places=2, null=False, default=0)
+    order_total = models.DecimalField(
+        max_digits=10, decimal_places=2, null=False, default=0)
+    grand_total = models.DecimalField(
+        max_digits=10, decimal_places=2, null=False, default=0)
+    # We added this 2 new fields to combat the issue with the same customer
+    # purchasing the same things twice on separate occasions & finding only
+    # the 1st order in the database when they place the 2nd one implying that
+    # the 2nd-order was never added. The 1st new model added is a text field
+    # that will contain the original shopping bag that created it.
     original_bag = models.TextField(null=False, blank=False, default='')
     # The 2nd is a character field that contains the stripe payment intent id
     # which is guaranteed to be unique.
-    stripe_pid = models.CharField(max_length=254, null=False, blank=False, default='')
+    stripe_pid = models.CharField(
+        max_length=254, null=False, blank=False, default='')
 
     # This method is called 'generate order number' & it's prepended with an
     # underscore by convention to indicate it's a private method which will
@@ -75,7 +88,8 @@ class Order(models.Model):
         # item totals' will prevent an error if we manually delete all the
         # line items from an order. It'll set the order total to 0 instead
         # of None.
-        self.order_total = self.lineitems.aggregate(Sum('lineitem_total'))['lineitem_total__sum'] or 0
+        self.order_total = self.lineitems.aggregate(
+            Sum('lineitem_total'))['lineitem_total__sum'] or 0
         # We'll then calculate the delivery cost using the 'free delivery
         # threshold' & the 'standard delivery percentage' from our settings
         # file if the order total is lower than the threshold.
@@ -94,9 +108,9 @@ class Order(models.Model):
         # We then save the instance
         self.save()
 
-    # This will override the default save method so that if the order we're saving
-    # right now doesn't have an order number, we'll call the 'generate order number'
-    # method & then execute the original save method.
+    # This will override the default save method so that if the order we're
+    # saving right now doesn't have an order number, we'll call the 'generate
+    # order number' method & then execute the original save method.
     def save(self, *args, **kwargs):
         """
         Override the original save method to set the order number
@@ -112,25 +126,32 @@ class Order(models.Model):
         return self.order_number
 
 
-# An 'Order Line Item' will be like an individual shopping bag item relating to
-# a specific order & referencing the product itself, size selected, quantity
-# & the total cost for that line item. The basic idea here is when a user checks
-# out, the information they put into the payment form will 1st be used to create
-# an order instance & then we'll iterate through the items in the shopping bag,
-# create an 'order line item' for each one, Attach it to the order & update the
-# delivery cost, order total & grand total along the way.
+# An 'Order Line Item' will be like an individual shopping bag item
+# relating to a specific order & referencing the product itself, size
+# selected, quantity & the total cost for that line item. The basic idea
+# here is when a user checks out, the information they put into the
+# payment form will 1st be used to create an order instance & then we'll
+# iterate through the items in the shopping bag, create an 'order line item'
+# for each one, Attach it to the order & update the delivery cost, order total
+# & grand total along the way.
 class OrderLineItem(models.Model):
     # On this order line item model, there's a foreign key to the order with a
     # related name of 'line items' so when accessing orders, we'll be able to
     # make calls such as 'order.lineitems.all' & 'order.lineitems.filter' etc
-    order = models.ForeignKey(Order, null=False, blank=False, on_delete=models.CASCADE, related_name='lineitems')
+    order = models.ForeignKey(
+        Order, null=False, blank=False, on_delete=models.CASCADE,
+        related_name='lineitems')
     # There's also a foreign key to the product for this line item so that we
     # can access all the fields of the associated product as well.
-    product = models.ForeignKey(Product, null=False, blank=False, on_delete=models.CASCADE)
-    product_size = models.CharField(max_length=2, null=True, blank=True) # XS, S, M, L, XL
+    product = models.ForeignKey(
+        Product, null=False, blank=False, on_delete=models.CASCADE)
+    product_size = models.CharField(
+        max_length=2, null=True, blank=True)  # XS, S, M, L, XL
     quantity = models.IntegerField(null=False, blank=False, default=0)
     # NOTE: The line item total is not editable.
-    lineitem_total = models.DecimalField(max_digits=6, decimal_places=2, null=False, blank=False, editable=False)
+    lineitem_total = models.DecimalField(
+        max_digits=6, decimal_places=2, null=False, blank=False, editable=False
+        )
 
     # We also need to set the 'line-item total' field on the 'order line-item'
     # model by overriding its save method. All we need to do is multiply the
