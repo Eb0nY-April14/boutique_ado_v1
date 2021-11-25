@@ -219,6 +219,25 @@
             latest deals. -->
         <div class="row">
 			<div class="col-12 col-lg-7 text-right">
+                <!-- This if statement below will check whether the user is coming from their 
+                profile page & if so render them a button to go back to it -->
+                {% if from_profile %}
+                    <a href="{% url 'profile' %}" class="btn btn-black rounded-0 my-2">
+                        <span class="icon mr-2">
+                            <i class="fas fa-angle-left"></i>
+                        </span>
+                        <span class="text-uppercase">Back to Profile</span>
+                    </a>
+                    <!-- If user isn't coming from their profile page, the 'else' part 
+                    will be executed  -->
+                {% else %}
+                    <a href="{% url 'products' %}?category=new_arrivals,deals,clearance" class="btn btn-black rounded-0 my-2">
+                        <span class="icon mr-2">
+                            <i class="fas fa-gifts"></i>
+                        </span>
+                        <span class="text-uppercase">Now check out the latest deals!</span>
+                    </a>
+                {% endif %}
 				<a href="{% url 'products' %}?category=new_arrivals,deals,clearance" class="btn btn-black rounded-0 my-2">
 					<span class="icon mr-2">
 						<i class="fas fa-gifts"></i>

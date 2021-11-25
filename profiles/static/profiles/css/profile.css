@@ -1,3 +1,12 @@
+/* This css rule will give this class a max height of 416px 
+in case the user has a lot of orders. 416 px is the height 
+of the form & the submit button in the adjacent column so above 
+that height, the order history area will have a scrollbar. */
+.order-history {
+    max-height: 416px; /* height of profile form + submit button */
+    overflow-y: auto;
+}
+
 /* Makes the text colour of the input black. */
 #profile-update-form .form-control {
     color: #000;

@@ -44,7 +44,59 @@
             we'll spit out/display all the user's orders if any using the curly braces. -->
             <div class="col-12 col-lg-6">
                 <p class="text-muted">Order History</p>
-                {{ orders }}
+                <!-- The order history section below is just a simple responsive bootstrap table. -->
+                <div class="order-history table-responsive">
+                    <!-- This makes the table small and borderless. -->
+                    <table class="table table-sm table-borderless">
+                        <!-- It'll have 4 columns in the head rep by table header tag(th) -->
+                        <thead>
+                            <tr>
+                                <th>Order Number</th>
+                                <th>Date</th>
+                                <th>Items</th>
+                                <th>Order Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Here in the table body, we'll iterate through the orders 
+                            returned from the profile view & generate a row for each one. -->
+                            {% for order in orders %}
+                                <tr>
+                                    <td>
+                                        <!-- The order number cell will be a link to a url we'll 
+                                        create in a moment called 'order history' & we'll pass it 
+                                        the order number. This link will also have a title so when 
+                                        you hover over it you can see the whole order number. -->
+                                        <a href="{% url 'order_history' order.order_number %}"
+                                        title="{{ order.order_number }}">
+                                        <!-- To keep things condensed, we'll pipe the order 
+                                        number into the built-in truncate characters filter to 
+                                        limit it to 6 characters. -->
+                                            {{ order.order_number|truncatechars:6 }}
+                                        </a>
+                                    </td>
+                                    <td>{{ order.date }}</td>
+                                    <td>
+                                        <!-- The items will be an unordered unstyled list. -->
+                                        <ul class="list-unstyled">
+                                            {% for item in order.lineitems.all %}
+                                            <!-- For each item in the orders list of line-items,
+                                            we'll make a small text summary of it including the 
+                                            size if applicable, the product name & the quantity 
+                                            purchased. -->
+                                                <li class="small">
+                                                    {% if item.product.has_sizes %}
+                                                        Size {{ item.product.size|upper }}
+                                                    {% endif %}{{ item.product.name }} x{{ item.quantity }}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                    <td>${{ order.grand_total }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
             </div>
         </div>
 {% endblock %}
