@@ -2,10 +2,11 @@ from django.http import HttpResponse
 
 from .models import Order, OrderLineItem
 from products.models import Product
+from profiles.models import UserProfile
+
 
 import json
 import time
-
 
 class StripeWH_Handler:
     """Handle Stripe webhooks"""
@@ -65,14 +66,39 @@ class StripeWH_Handler:
             if value == "":
                 shipping_details.address[field] = None
 
-    # here, we assume that the order doesn't exist by setting the 'order exists'
-    # variable to false.
+        # Update profile information if save_info was checked
+        # profile is set to none to allow anonymous users to checkout.
+        profile = None
+        # This gets the username from intent & store it in 'username' variable
+        username = intent.metadata.username
+        # If the username isn't anonymous user, then we know they are
+        # authenticated.
+        if username != 'AnonymousUser':
+            # Since they're not anonymous, we'll get their profile
+            # using their username.
+            profile = UserProfile.objects.get(user__username=username)
+            # If they've got the save info box checked (this comes from the
+            # metadata we added), then we'll update their profile by adding
+            # the shipping details as their default delivery information.
+            if save_info:
+                profile.default_phone_number = shipping_details.phone
+                profile.default_country = shipping_details.address.country
+                profile.default_postcode = shipping_details.address.postal_code
+                profile.default_town_or_city = shipping_details.address.city
+                profile.default_street_address1 = shipping_details.address.line1
+                profile.default_street_address2 = shipping_details.address.line2
+                profile.default_county = shipping_details.address.state
+                profile.save()
+
+    # here, we assume that the order doesn't exist by setting the
+    # 'order exists' variable to false.
         order_exists = False
         attempt = 1
-        # We'll try to get the order using all the information from the payment intent
-        # using the iexact lookup field to make it an exact match but case-insensitive.
-        # We'll create a while loop that the webhooks handler will execute up to 5 times
-        # before giving up to create the order
+        # We'll try to get the order using all the information from the
+        # payment intent using the iexact lookup field to make it an exact
+        # match but case-insensitive. We'll create a while loop that the
+        # webhooks handler will execute up to 5 times before giving up to
+        # create the order
         while attempt <= 5:
             try:
                 order = Order.objects.get(
@@ -86,10 +112,10 @@ class StripeWH_Handler:
                     street_address2__iexact=shipping_details.address.line2,
                     county__iexact=shipping_details.address.state,
                     grand_total=grand_total,
-                    # We'll add the shopping bag & the stripe pid to the list of
-                    # attributes we want to match on when finding it in order to
-                    # remove all doubt as to whether we're looking for the proper
-                    # order in the webhook handler.
+                    # We'll add the shopping bag & the stripe pid to the
+                    # list of attributes we want to match on when finding
+                    # it in order to remove all doubt as to whether we're
+                    # looking for the proper order in the webhook handler.
                     original_bag=bag,
                     stripe_pid=pid,
                 )
@@ -118,13 +144,19 @@ class StripeWH_Handler:
             return HttpResponse(
                 content=f'Webhook received: {event["type"]} | SUCCESS: Verified order already in database',
                 status=200)
-        # If otherwise i.e 'order exists' is not set to true, we'll create 
+        # If otherwise i.e 'order exists' is not set to true, we'll create
         # the order.
         else:
             order = None
             try:
                 order = Order.objects.create(
                     full_name=shipping_details.name,
+                    # since we've already got their profile, we'll add it to
+                    # their order when the webhook creates it so the webhook
+                    # handler can create orders for both authenticated users
+                    # by attaching their profile & for anonymous users by
+                    # setting that field to none.
+                    user_profile=profile,
                     email=billing_details.email,
                     phone_number=shipping_details.phone,
                     country=shipping_details.address.country,
@@ -133,9 +165,9 @@ class StripeWH_Handler:
                     street_address1=shipping_details.address.line1,
                     street_address2=shipping_details.address.line2,
                     county=shipping_details.address.state,
-                    # If it's not found we'll also want to create the order using 
-                    # those items just like we would in the view. This ensures that 
-                    # a payment has been processed successfully when we receive a 
+                    # If it's not found we'll also want to create the order using
+                    # those items just like we would in the view. This ensures that
+                    # a payment has been processed successfully when we receive a
                     # webhook from stripe.
                     original_bag=bag,
                     stripe_pid=pid,
