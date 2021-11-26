@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_header %}
+    <div class="container header-container">
+        <div class="row">
+            <div class="col"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row">
+            <!-- This column on next line will be full width(col-12) on mobile 
+            screens & 50% width(col-md-6) on medium & larger screens. -->
+            <div class="col-12 col-md-6">
+                <hr>
+                <h2 class="logo-font mb-4">Product Management</h2>
+                <h5 class="text-muted">Add a Product</h5>
+                <hr>
+            </div>
+        </div>
+
+        <!-- Here, we need another 50% width column in the 2nd row which will 
+        render our product form as a nicely styled crispy form. -->
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <!-- Within the form element, we'll include a class of 'form' with margin 
+                on the bottom. We'll also add the encoding type attribute on this form since 
+                it'll potentially be submitting an image file & without this the image won't 
+                be uploaded properly. -->
+                <form method="POST" action="{% url 'add_product' %}" class="form mb-2" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form | crispy }}
+                    <!-- We'll add a submit & cancel buttons to go back to the products page.
+                    They'll both be aligned to the right at the bottom of the form. -->
+                    <div class="text-right">
+                        <a class="btn btn-outline-black rounded-0" href="{% url 'products' %}">Cancel</a>
+                        <button class="btn btn-black rounded-0" type="submit">Add Product</button>
+                    </div>
+                </form>
+            </div>            
+        </div>
+    </div>
+{% endblock %}
