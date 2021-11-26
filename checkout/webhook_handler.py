@@ -1,9 +1,11 @@
 from django.http import HttpResponse
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
 
 from .models import Order, OrderLineItem
 from products.models import Product
 from profiles.models import UserProfile
-
 
 import json
 import time
@@ -18,6 +20,38 @@ class StripeWH_Handler:
         # just in case we need to access any attributes of the request coming
         # from stripe.
         self.request = request
+
+    # This is a private method cos it starts the method name with an underscore
+    # which means it'll only be used inside this class.
+    # The self argument passed into it won't do anything special as we'll just
+    # give it the order
+    def _send_confirmation_email(self, order):
+        """Send the user a confirmation email"""
+        # We'll get the customers email from the order & store it in a variable
+        cust_email = order.email
+        # Then we'll use the 'render_to_string' method to render both the files
+        # we just created to strings with the 1st parameter being the file we
+        # want to render & the 2nd being a context passed to a template.
+        # Just the order will be passed to the subject.
+        subject = render_to_string(
+            'checkout/confirmation_emails/confirmation_email_subject.txt',
+            {'order': order})
+        # Then for the body, we'll pass the order as well as a contact email
+        # we'll add to the settings file soon.
+        body = render_to_string(
+            'checkout/confirmation_emails/confirmation_email_body.txt',
+            {'order': order, 'contact_email': settings.DEFAULT_FROM_EMAIL})
+
+        # To finally send the email, we'll use the send mail function & give it
+        # the subject, body, email we want to send from & a list of emails 
+        # we're sending to which will be only the customers emails. To to use it,
+        # we'll simply call it anywhere we want to send an email.
+        send_mail(
+            subject,
+            body,
+            settings.DEFAULT_FROM_EMAIL,
+            [cust_email]
+        )
 
     # We'll create a class method called handle event which will take the event
     # stripe is sending us & simply return an HTTP response indicating it was
@@ -136,8 +170,13 @@ class StripeWH_Handler:
                 # & creating the order itself.
                 attempt += 1
                 time.sleep(1)
-        # If 'order exists' has been set to true, we'll return the 200 response.
+        # If 'order exists' has been set to true, we'll return the 200 response
         if order_exists:
+            # Since the payment has definitely been completed at this point, 
+            # we'll want to send an email to the customer. If the order was 
+            # found in the database because it was already created by the form,
+            # we'll send the email just before returning the response to stripe
+            self._send_confirmation_email(order)
             # If the order is found we'll set order exists to true & return
             # a 200 HTTP response to stripe with the message that we verified
             # the order already exists.
@@ -191,14 +230,19 @@ class StripeWH_Handler:
                             )
                             order_line_item.save()
             except Exception as e:
-                # If anything goes wrong, this'll just delete the order if it was created.
+                # If anything goes wrong, this'll just delete the order 
+                # if it was created.
                 if order:
                     order.delete()
-                # It'll then return a 500 server error response to stripe which will cause
-                # stripe to automatically try the webhook again later.
+                # It'll then return a 500 server error response to stripe 
+                # which will cause stripe to automatically try the webhook 
+                # again later.
                 return HttpResponse(
                     content=f'Webhook received: {event["type"]} | ERROR: {e}',
                     status=500)
+        # If the order was created by the webhook handler, we'll send the email 
+        # at here just before returning that response to stripe.
+        self._send_confirmation_email(order)
         # This prints out the payment intent (i.e from previous line above) coming
         # from stripe once the user makes a payment. For testing purpose only.
         # print(intent)
