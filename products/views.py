@@ -75,24 +75,27 @@ def product_detail(request, product_id):
 
     return render(request, 'products/product_detail.html', context)
 
-# What this view does is that it'll render an empty instance of our 
+# What this view does is that it'll render an empty instance of our
 # form so we can see how it looks
 def add_product(request):
     """ Add a product to the store """
-    # If the request method is post, we'll instantiate a new instance 
+    # If the request method is post, we'll instantiate a new instance
     # of the product form from request.post & include request.files also
-    # in order to make sure that the image of the product is captured if 
+    # in order to make sure that the image of the product is captured if
     # submitted.
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         # If form.is_valid, we'll save it, add a success message
         # & redirect to the same view.
         if form.is_valid():
-            form.save()
+            product = form.save()
             messages.success(request, 'Successfully added product!')
-            return redirect(reverse('add_product'))
-        # But if there are any errors on the form, we'll attach a generic 
-        # error message to tell the user to check their form which will 
+            # Once the product is added, we redirect to that product's
+            # detail page instead of the 'add product' page & send 
+            # along the product's id.
+            return redirect(reverse('product_detail', args=[product.id]))
+        # But if there are any errors on the form, we'll attach a generic
+        # error message to tell the user to check their form which will
         # display the errors.
         else:
             messages.error(request, 'Failed to add product. Please ensure the form is valid.')
@@ -110,15 +113,15 @@ def add_product(request):
     return render(request, template, context)
 
 
-# This function will take as arguments the request & product ID 
+# This function will take as arguments the request & product ID
 # the user is going to edit.
 def edit_product(request, product_id):
     """ Edit a product in the store """
     # We'll pre-fill the form by getting the product using get_object_or_404
     product = get_object_or_404(Product, pk=product_id)
     if request.method == 'POST':
-        # It'll instantiate a form using request.post & request.files if the 
-        # request method is post & tell it that the specific instance we'd 
+        # It'll instantiate a form using request.post & request.files if the
+        # request method is post & tell it that the specific instance we'd
         # like to update is the 'product' we got above using getobject404.
         form = ProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
@@ -126,14 +129,14 @@ def edit_product(request, product_id):
             messages.success(request, 'Successfully updated product!')
             # This redirects to the product detail page using the product id.
             return redirect(reverse('product_detail', args=[product.id]))
-        # The 'else' part handles if form isn't valid, it'll add an error 
+        # The 'else' part handles if form isn't valid, it'll add an error
         # message & return the form which will have the errors attached.
         else:
             messages.error(request, 'Failed to update product. Please ensure the form is valid.')
     else:
         # This instantiates a product form using the product.
         form = ProductForm(instance=product)
-        # We'll add an info message to let the user know 
+        # We'll add an info message to let the user know
         # they're editing a product.
         messages.info(request, f'You are editing {product.name}')
 
@@ -147,3 +150,14 @@ def edit_product(request, product_id):
 
     # Then return the render statement.
     return render(request, template, context)
+
+
+# This view will take the request & the product id to be deleted
+# but does not require a post handler.
+def delete_product(request, product_id):
+    """ Delete a product from the store """
+    product = get_object_or_404(Product, pk=product_id)
+    # messages.info(request, f'Are You Sure you want to delete {product.name}?')
+    product.delete()
+    messages.success(request, 'Product deleted!')
+    return redirect(reverse('products'))
