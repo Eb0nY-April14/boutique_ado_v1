@@ -75,11 +75,31 @@ def product_detail(request, product_id):
 
     return render(request, 'products/product_detail.html', context)
 
-# What this view does is that it'll  render an empty instance of our 
+# What this view does is that it'll render an empty instance of our 
 # form so we can see how it looks
 def add_product(request):
     """ Add a product to the store """
-    form = ProductForm()
+    # If the request method is post, we'll instantiate a new instance 
+    # of the product form from request.post & include request.files also
+    # in order to make sure that the image of the product is captured if 
+    # submitted.
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
+        # If form.is_valid, we'll save it, add a success message
+        # & redirect to the same view.
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Successfully added product!')
+            return redirect(reverse('add_product'))
+        # But if there are any errors on the form, we'll attach a generic 
+        # error message to tell the user to check their form which will 
+        # display the errors.
+        else:
+            messages.error(request, 'Failed to add product. Please ensure the form is valid.')
+    # This empty form instantiation here below is put into an else block
+    # so it doesn't wipe out the form errors.
+    else:
+        form = ProductForm()
     # This will use a new template called 'add_product'
     template = 'products/add_product.html'
     # It'll also include a context that has the product form.
