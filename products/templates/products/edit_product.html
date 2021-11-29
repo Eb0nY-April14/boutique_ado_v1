@@ -25,7 +25,15 @@
             <div class="col-12 col-md-6">
                 <form method="POST" action="{% url 'edit_product' product.id %}" class="form mb-2" enctype="multipart/form-data">
                     {% csrf_token %}
-                    {{ form | crispy }}
+                    {% for field in form %}
+                        <!-- We'll add an if statement to the edit template so that we will only 
+                        render the field as a crispy field if it's not our custom image widget. -->
+                        {% if field.name != 'image' %}
+                            {{ field | as_crispy_field }}
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                    {% endfor %}
                     <div class="text-right">
                         <a class="btn btn-outline-black rounded-0" href="{% url 'products' %}">Cancel</a>
                         <button class="btn btn-black rounded-0" type="submit">Update Product</button>
@@ -34,4 +42,19 @@
             </div>            
         </div>
     </div>
+{% endblock %}
+
+<!-- This JS will handle notifying the user of what the image will be changed to. -->
+{% block postloadjs %}
+    {{ block.super }}
+    <script type="text/javascript">
+        /* It'll listen to the change event on the new image input. */ 
+        $('#new-image').change(function() {
+            /*  Then, whenever it changes, we'll get the file that was added to it. */ 
+            var file = $('#new-image')[0].files[0];
+            /* And set the file name paragraph in the widget template to the file's 
+            name using back ticks. */ 
+            $('#filename').text(`Image will be set to: ${file.name}`);
+        });
+    </script>
 {% endblock %}
