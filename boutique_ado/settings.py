@@ -28,7 +28,9 @@ SECRET_KEY = 'django-insecure--6uvgop!ph8do%l=-39yzp7o8k$2hmm-&x7yh18)qsygz_sadz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# We'll add the hostname of our Heroku app to allowed hosts in settings.py
+# & also 'localhost' so that gitpod will still work too.
+ALLOWED_HOSTS = ['ebony14-boutique-ado.herokuapp.com', 'localhost']
 
 
 # Application definition
@@ -145,13 +147,23 @@ WSGI_APPLICATION = 'boutique_ado.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+# We'll use an if statement in this section of our settings.py
+# so that when our app is running on Heroku where the database URL
+# environment variable will be defined, we connect to Postgres
+# otherwise (i.e running locally in development environment), we
+# connect to our local DB i.e sqlite.
+if 'DATABASE_URL' in os.environ:
+    DATABASES = {
+        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            # 'NAME': BASE_DIR / 'db.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
 
 # DATABASES = {
 #     'default': dj_database_url.parse('postgres://mexamriwwzwrif:fdaddf117d2824e8196c677935db55c6372e84e09d204b8ebbc8b5560436d63f@ec2-34-253-116-145.eu-west-1.compute.amazonaws.com:5432/d55jhkc27ficlh')
@@ -221,7 +233,7 @@ STRIPE_CURRENCY = 'usd'
 # from the last commit, we really don't want the secret key in there because
 # the secret key can be used to do everything on stripe including creating
 # charges, making payments, issuing refunds, & even updating our own account
-# information so it's very important to keep the secret key safe & out of 
+# information so it's very important to keep the secret key safe & out of
 # version control. Both variables will have empty default values.
 STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY', '')
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
