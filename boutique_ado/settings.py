@@ -214,9 +214,22 @@ STATIC_URL = '/static/'
 # need to do is shown on the next line below
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
-# The code on the 2 lines below this comment is where all uploaded media files will go.
+# The code on the 2 lines below this comment is where all 
+# uploaded media files will go.
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# We'll add an optional setting to settings.py called 'AWS_S3_OBJECT_PARAMETERS'
+# to tell the browser that it's ok to cache static files for a long time
+# since they don't change very often. This will improve performance for 
+# our users.
+if 'USE_AWS' in os.environ:
+    # Cache control
+    AWS_S3_OBJECT_PARAMETERS = {
+        'Expires': 'Thu, 31 Dec 2099 20:00:00 GMT',
+        'CacheControl': 'max-age=94608000',
+    }
+
 
 # To connect Django to s3 we need to add some settings in settings.py
 # to tell it which bucket it should be communicating with. We only want
