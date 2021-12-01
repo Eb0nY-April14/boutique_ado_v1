@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', '')
 # SECURITY WARNING: don't run with debug turned on in production!
-# Here, debug will be set to true only if there's a variable called 
+# Here, debug will be set to true only if there's a variable called
 # 'development' in the environment.
 DEBUG = 'DEVELOPMENT' in os.environ
 
@@ -56,6 +56,7 @@ INSTALLED_APPS = [
 
     # Other
     'crispy_forms',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -216,6 +217,39 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 # The code on the 2 lines below this comment is where all uploaded media files will go.
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# To connect Django to s3 we need to add some settings in settings.py
+# to tell it which bucket it should be communicating with. We only want
+# to do this on Heroku & not on local development so we'll add an if
+# statement to check if there's an environment variable called USE_AWS
+# in the environment & if so we'll define the ff including our access
+# key & secret access key which we'll get from the environment.
+if 'USE_AWS' in os.environ:
+    # Bucket Config
+    AWS_STORAGE_BUCKET_NAME = 'ebony14-boutique-ado'
+    AWS_S3_REGION_NAME = 'eu-west-1'
+    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+
+    # Static and media files
+    # This tells django that for static file storage, we want to use
+    # the storage class we just created in custom_storages.py file.
+    STATICFILES_STORAGE = 'custom_storages.StaticStorage'
+    # This tells django that the location it should save
+    # static files in is a folder called static.
+    STATICFILES_LOCATION = 'static'
+    # We'll do same as above for media files by using the
+    # default file storage media files location settings.
+    DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
+    MEDIAFILES_LOCATION = 'media'
+
+    # Override static and media URLs in production
+    # Here, we also need to override & explicitly set the URLs
+    # for static and media files using our custom domain & the
+    # new locations.
+    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATICFILES_LOCATION}/'
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{MEDIAFILES_LOCATION}/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
