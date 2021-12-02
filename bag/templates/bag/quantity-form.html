@@ -1,0 +1,46 @@
+<form class="form update-form" method="POST" action="{% url 'adjust_bag' item.item_id %}">
+    {% csrf_token %}
+    <div class="form-group">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <button class="decrement-qty btn btn-sm btn-black rounded-0" 
+                    data-item_id="{{ item.item_id }}" id="decrement-qty_{{ item.item_id }}">
+                    <span>
+                        <i class="fas fa-minus fa-sm"></i>
+                    </span>
+                </button>
+            </div>
+            <input class="form-control form-control-sm qty_input" type="number"
+                name="quantity" value="{{ item.quantity }}" min="1" max="99"
+                data-item_id="{{ item.item_id }}"
+                id="id_qty_{{ item.item_id }}">
+            <div class="input-group-append">
+                <button class="increment-qty btn btn-sm btn-black rounded-0"
+                    data-item_id="{{ item.item_id }}" id="increment-qty_{{ item.item_id }}">
+                    <span>
+                        <i class="fas fa-plus fa-sm"></i>
+                    </span>
+                </button>
+            </div>
+            <!-- We'll submit the size of the item the 
+            user wants to update or remove in a hidden 
+            input field if the product have sizes. -->
+            {% if item.product.has_sizes %}
+                <input type="hidden" name="product_size" value="{{ item.size }}">
+            {% endif %}
+        </div>
+    </div>
+</form>
+<!-- There's no submit button within the form above & 
+it's for a purpose i.e to keep the visual impact mini-
+mal. We'll just use a simple link and handle its click 
+event with JScript. Under the form, we'll create 2 anch-
+or elements; one for updating the quantity which will 
+submit the form & the other for removing the item from 
+the bag entirely. The one for removing the bag will have 
+a data attribute similar to the 'data item id' attributes 
+on the buttons & that will be used to discern which spec-
+ific item the customer wants to remove if there are mult-
+iple sizes of this item in the bag. -->
+<a class="update-link text-info"><small>Update</small></a>
+<a class="remove-item text-danger float-right" id="remove_{{ item.item_id }}" data-product_size="{{ item.size }}"><small>Remove</small></a>
