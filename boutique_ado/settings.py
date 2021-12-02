@@ -132,7 +132,7 @@ AUTHENTICATION_BACKENDS = [
 # This must be added to my MS5 project's settings.py file
 SITE_ID = 1
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Paste these 7 lines of code below into my MS5 project's settings.py file
 ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
@@ -214,14 +214,14 @@ STATIC_URL = '/static/'
 # need to do is shown on the next line below
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
-# The code on the 2 lines below this comment is where all 
+# The code on the 2 lines below this comment is where all
 # uploaded media files will go.
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # We'll add an optional setting to settings.py called 'AWS_S3_OBJECT_PARAMETERS'
 # to tell the browser that it's ok to cache static files for a long time
-# since they don't change very often. This will improve performance for 
+# since they don't change very often. This will improve performance for
 # our users.
 if 'USE_AWS' in os.environ:
     # Cache control
@@ -286,4 +286,21 @@ STRIPE_CURRENCY = 'usd'
 STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY', '')
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
 STRIPE_WH_SECRET = os.getenv('STRIPE_WH_SECRET', '')
-DEFAULT_FROM_EMAIL = 'boutiqueado@example.com'
+
+# Here, we'll check if development is in os.environ to determine
+# which email setup to use.
+if 'DEVELOPMENT' in os.environ:
+    # This logs emails to the console.
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    # This specifies the default from email.
+    DEFAULT_FROM_EMAIL = 'boutiqueado@example.com'
+else:
+    # The else part takes care of the production side by setting up
+    # these several variables below.
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_USE_TLS = True
+    EMAIL_PORT = 587
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASS')
+    DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER')
