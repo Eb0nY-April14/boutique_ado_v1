@@ -329,4 +329,64 @@ class & take off the border-radius. */
     body {
         height: calc(100vh - 116px);
     }
+
+ /*****************************************************************/
+ /*     THESE 5 BLOCKS OF CSS RULES WILL TIGHTEN THE WHOLE       */ 
+ /*     NAVBAR UP & REDUCE THE FONT SIZES ON MOBILE SCREENS.    */ 
+ /**************************************************************/
+
+    /* This reduces the size of the main page call-out  */
+    .display-4.logo-font.text-black {
+        font-size: 2rem;
+    }
+
+    /* This reduces the padding on the nav links. */
+    .nav-link {
+        padding: 0.15rem;
+    }
+
+    /* This styles the font awesome icons. */
+    .nav-link i.fa-lg {
+        font-size: 1rem;
+    }
+
+    /* This styles the navbar toggle button. */
+    .navbar-toggler {
+        padding: .6rem .6rem;
+        font-size: 1rem;
+    }
+
+    /* This will reduce the font size of the delivery banner 
+    so it won't wrap even on the smallest modern screens. */
+    #delivery-banner h4 {
+        font-size: .9rem;
+    }
+/******************************************************************/
+
+/*******************************************************************/
+/*  THESE  BLOCKS OF CSS RULES FIX THE ISSUES THAT CENTERS AROUND  */ 
+/*  THE BUTTONS ON THE PRODUCT DETAIL & SHOPPING BAG PAGES.        */ 
+/*******************************************************************/
+    /* This fixes the excess padding & big font sizes on the buttons 
+    on product details page using their chain of classes in order. */
+    .btn.btn-outline-black.rounded-0,
+    .btn.btn-black.rounded-0 {
+        padding: .375rem .375rem;
+    }
+
+    /* This reduces the font size & adjust the class list of the 
+    buttons on the shopping bag page since they use the button large 
+    class. */
+    .btn.btn-outline-black.rounded-0.btn-lg,
+    .btn.btn-black.rounded-0.btn-lg {
+        padding: .375rem .375rem;
+        font-size: .75rem;
+    }
+
+    /* This will make the increment & decrement quantity form  
+    buttons on the shopping bag page to ignore these changes
+    so we'll set those paddings explicitly. */
+    .increment-qty, .decrement-qty {
+        padding: .25rem .5rem !important;
+    }
 }

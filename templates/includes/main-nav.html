@@ -8,6 +8,15 @@ toggle button we put into the base template. -->
     it auto width, auto left & right margins. The shell of all this code comes from the 
     bootstrap documentation so we use that as the base & then customize it. -->
     <ul class="navbar-nav w-auto mx-auto">
+        <!-- This link will contain a link that'll make it possible for users on mobile 
+        to get back to the home page since the logo is hidden for them. It'll be 'display 
+        block' but 'display none' on medium screens & up so it'll be hidden except for 
+        when in the mobile menu -->
+        <li class="nav-item d-block d-md-none">
+            <a class="logo-font font-weight-bold nav-link text-black mr-5" href="{% url 'home' %}" id="home-link">
+                Home
+            </a>
+        </li>
         <li class="nav-item dropdown">
             <!-- This is a link that says 'All Products' which triggers a drop-down of 
             4 other href links below it. This menu will allow the user to 

@@ -8,7 +8,10 @@ padding, the overlay to make the background white, a row & then a 50% width colu
     <div class="container header-container">
         <div class="overlay"></div>
         <div class="row">
-            <div class="col-6">
+            <!-- We'll adjust the base.html in account folder in the allauth templates to 
+            use a full-width column (i.e col-12) on mobile & 50% width (i.e col-md-6) on 
+            medium screens & up. -->
+            <div class="col-12 col-md-6">
                 <!-- We'll create a div with a class of 'allauth form inner content'.
                 The issue with this is that since this block is now called 'content', 
                 it means that the login templates 'content' block will just replace it 
