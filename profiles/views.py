@@ -10,7 +10,7 @@ from checkout.models import Order
 
 # Create your views here.
 # This view returns a profile.html template with an empty context for now.
-# The login decorator added at the top of the function ensures that no 
+# The login decorator added at the top of the function ensures that no
 # unauthorised user can access the profile view.
 @login_required
 def profile(request):
@@ -53,21 +53,22 @@ def profile(request):
 
 
 def order_history(request, order_number):
-    # This gets the order 
+    # This gets the order
     order = get_object_or_404(Order, order_number=order_number)
 
-    # We'll add a message to let the user know they're looking 
+    # We'll add a message to let the user know they're looking
     # at a past order confirmation.
     messages.info(request, (
         f'This is a past confirmation for order number {order_number}. '
         'A confirmation email was sent on the order date.'
     ))
 
-    # We'll give it a template & some context which will include the order number.
-    # It'll use the 'checkout success' template since that template already has the 
-    # layout for rendering a nice order confirmation. We've added another variable 
-    # to the context called 'from_profile' so we can check in that template if the 
-    # user gets there via the order history view.
+    # We'll give it a template & some context which will include the
+    # order number. It'll use the 'checkout success' template since
+    # that template already has the layout for rendering a nice order
+    # confirmation. We've added another variable to the context called
+    # 'from_profile' so we can check in that template if the user gets
+    # there via the order history view.
     template = 'checkout/checkout_success.html'
     context = {
         'order': order,
