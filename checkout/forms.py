@@ -39,6 +39,10 @@ class OrderForm(forms.ModelForm):
             'county': 'County, State or Locality',
         }
 
+    # This handles the form customisation i.e remove labels, 
+    # set autofocus to true on full name, put placeholder in 
+    # each field & add a star to the placeholder if it's a 
+    # required field on the model. 
     # Here we'll set the autofocus attribute on the full name field to true
     # so the cursor will start in the full name field when the user loads the page.
         self.fields['full_name'].widget.attrs['autofocus'] = True
