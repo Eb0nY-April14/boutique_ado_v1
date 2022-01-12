@@ -64,6 +64,11 @@ form.addEventListener('submit', function(ev) {
     };
     var url = '/checkout/cache_checkout_data/';
 
+    /* To post this postData, we'll use the post method built into jQuery
+    to tell it we're posting to the URL & that we want to post the post data above.
+    We'll want to wait for a response that the payment intent was updated before 
+    calling the confirmed payment method & we'll do this by tacking on the .done 
+    method & executing the callback function. */
     $.post(url, postData).done(function () {
         stripe.confirmCardPayment(clientSecret, { 
             payment_method: {  

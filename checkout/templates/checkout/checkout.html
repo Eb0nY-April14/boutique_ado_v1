@@ -28,7 +28,7 @@ shopping bag page since we're using bag items here below. -->
         </div>
 
         <!-- Here, we have an order summary header & a row containing some simple column headers. -->
-        <div class="row">
+        <div class="row">  <!-- row div starts -->
             <div class="col-12 col-lg-6 order-lg-last mb-5">
                 <p class="text-muted">Order Summary ({{ product_count }})</p>
                 <div class="row">
@@ -82,7 +82,7 @@ shopping bag page since we're using bag items here below. -->
                 </div>
             </div>
                             <!-- Checkout form  section -->
-            <div class="col-12 col-lg-6">
+            <div class="col-12 col-lg-6">  <!-- col 12 div starts -->
                 <p class="text-muted">Please fill out the form below to complete your order</p>
                 <form action="{% url 'checkout' %}" method="POST" id="payment-form">
                     {% csrf_token %}
@@ -175,9 +175,9 @@ shopping bag page since we're using bag items here below. -->
 						</p>
 					</div>
                 </form>
-            </div>
-        </div>
-    </div>
+            </div>  <!-- col 12 div ends -->
+        </div>  <!-- row div ends -->
+    </div> <!-- Container div ends -->
     <!-- Here in this div, we'll create a 'loading overlay' div. This will 
     have a big giant spinner icon right in the center of the screen & a 
     transparent blue overlay to cover up the page & indicate that the payment 
